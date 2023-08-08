@@ -1,0 +1,10 @@
+spring:
+  main:
+    banner-mode: off
+logging:
+  level:
+    com.baomidou.mybatisplus: error
+    root: error
+mybatis-plus:
+  global-config:
+    banner: off

@@ -1,0 +1,13 @@
+spring:
+  main:
+    banner-mode: console
+logging:
+  file:
+    path: ./logs
+  level:
+    com.baomidou.mybatisplus: debug
+    cn.xdwanj.gsgm: debug
+    root: info
+mybatis-plus:
+  global-config:
+    banner: on

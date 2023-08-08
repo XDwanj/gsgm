@@ -1,0 +1,10 @@
+name: "game-name" # 游戏名称
+game_slug: "game-slug" # 游戏标符
+version: "game-version" # 安装程序版本
+slug: "game-slug" # 安装程序标识符
+runner: "game-runner" # 运行器
+
+script:
+  game:
+    exe: "game-exe" # 游戏可执行文件路径
+    prefix: "game-prefix" # wine 容器路径
