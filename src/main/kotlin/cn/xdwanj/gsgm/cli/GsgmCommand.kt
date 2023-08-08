@@ -31,7 +31,7 @@ import java.util.concurrent.Callable
 @Command(
   name = "gsgm",
   mixinStandardHelpOptions = true,
-  version = ["gsgm v1.0.0"],
+  version = ["gsgm v1.0.1"],
   usageHelpAutoWidth = true,
   description = ["Gsgm 管理工具"],
   subcommands = [
