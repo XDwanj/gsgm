@@ -61,6 +61,39 @@ setting.json
 }
 ```
 
+## 使用方式
+
+```shell
+# 通过设置别名的方式使用，本机需要安装 JDK8 及以上版本
+alias gsgm='java -jar /xxxx/gsgm-xxxx.jar'
+```
+
+```shell
+# 读取这个配置，支持 bash 和 zsh 的自动补全
+source completion.sh
+```
+
+## 文档
+
+具体命令的介绍，可以通过 `gsgm xxx -h` 获取
+
+```shell
+Usage: gsgm [-hV] [COMMAND]
+Gsgm 管理工具
+  -h, --help      Show this help message and exit.
+  -V, --version   Print version information and exit.
+Commands:
+  search               查询
+  list                 已安装列表
+  info                 查询具体游戏
+  init                 游戏初始化
+  remove               删除游戏
+  check                检查游戏
+  sync                 同步数据
+  clean                清空 Lutris 游戏库
+  generate-completion  Generate bash/zsh completion script for gsgm.
+```
+
 ## 鸣谢列表
 
 - [JColor](https://github.com/dialex/JColor)
