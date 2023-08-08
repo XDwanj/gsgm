@@ -37,7 +37,6 @@ class InstallOperate : Callable<Int> {
     index = "0",
     description = ["游戏路径"],
     arity = "2..*",
-    converter = [FileConverter::class]
   )
   var params: List<File> = emptyList()
 

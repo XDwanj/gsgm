@@ -30,7 +30,6 @@ class RemoveOperate(
   @Option(
     names = ["-l", "--library-path"],
     description = ["Gsgm 游戏库位置"],
-    converter = [FileConverter::class],
     arity = "0..*",
     required = false,
   )

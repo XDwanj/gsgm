@@ -44,7 +44,6 @@ class SyncOperate(
 
   @Parameters(
     index = "0",
-    converter = [FileConverter::class],
     arity = "1..*",
     paramLabel = "<libraryPath>",
     description = ["游戏库位置"],

@@ -56,7 +56,6 @@ class InitOperate(
   @Parameters(
     index = "0",
     arity = "1..*",
-    converter = [FileConverter::class],
     description = ["游戏路径"],
     paramLabel = "<gameOrLibraryPath>"
   )

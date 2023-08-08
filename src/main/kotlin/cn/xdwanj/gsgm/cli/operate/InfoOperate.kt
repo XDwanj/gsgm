@@ -29,7 +29,6 @@ class InfoOperate(
     description = ["Gsgm 游戏库位置，为空则仅查 Lutris 数据库"],
     arity = "0..*",
     paramLabel = "<libraryPath>",
-    converter = [FileConverter::class],
     required = false,
   )
   var libraryPathList: List<File> = emptyList()

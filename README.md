@@ -57,7 +57,7 @@ setting.json
   "executeLocation": "PureStation.exe", // 游戏启动文件，路径相对于游戏根目录
   "winePrefix": ".gsgm/winePrefix", // wineprefix 路径，相对于游戏根目录，默认为 `.gsgm/winePrefix`
   "localeCharSet": "zh_CN.UTF-8", // 字符集编码，默认 zh_CN.UTF-8
-  "platform": "Windows" // 游戏平台，默认 wine
+  "platform": "Windows" // 游戏平台，默认 Windows
 }
 ```
 

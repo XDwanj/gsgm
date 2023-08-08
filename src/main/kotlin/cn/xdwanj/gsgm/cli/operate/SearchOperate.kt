@@ -36,7 +36,6 @@ class SearchOperate(
 
   @Parameters(
     index = "0",
-    converter = [FileConverter::class],
     description = ["游戏库位置"],
     paramLabel = "<libraryPath>",
     arity = "1..*"
