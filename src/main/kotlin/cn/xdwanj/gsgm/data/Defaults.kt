@@ -20,7 +20,6 @@ object Defaults {
   val defaultGsgmInfo
     get() = GsgmInfo(
       id = IdUtil.getSnowflakeNextId(),
-      // picture = "cover",
     )
 
   val defaultGsgmSetting

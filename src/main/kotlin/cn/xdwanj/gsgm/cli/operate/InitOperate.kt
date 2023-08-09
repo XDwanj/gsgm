@@ -1,7 +1,6 @@
 package cn.xdwanj.gsgm.cli.operate
 
 import cn.xdwanj.gsgm.cli.controller.InitController
-import cn.xdwanj.gsgm.cli.converter.FileConverter
 import cn.xdwanj.gsgm.cli.group.GameTypeGroup
 import kotlinx.coroutines.runBlocking
 import org.slf4j.LoggerFactory
@@ -62,17 +61,18 @@ class InitOperate(
   lateinit var pathList: List<File>
 
   override fun call(): Int = runBlocking {
+    // log
     logger.info("isLibrary = {}", isLibrary)
     logger.info("pathList = {}", pathList)
     logger.info("activeInteractiveMode = {}", activeInteractiveMode)
     logger.info("gameTypeGroup = {}", gameTypeGroup)
 
     if (activeInteractiveMode.not() && gameTypeGroup.isMixed) {
-      throw ParameterException(spec.commandLine(), "非交互模式必须确认游戏平台如：--windows-all")
+      throw ParameterException(spec.commandLine(), "非交互模式必须确认游戏平台如：gsgm -i --mix /path/of/game")
     }
 
     if (activeInteractiveMode) {
-      initController.initActionInteract(isLibrary, gameTypeGroup, pathList)
+      initController.initActionByInteract(isLibrary, gameTypeGroup, pathList)
     } else {
       initController.initActionDefault(isLibrary, gameTypeGroup, pathList)
     }

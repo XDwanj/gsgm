@@ -5,6 +5,7 @@ import cn.xdwanj.gsgm.cli.controller.InitController
 import cn.xdwanj.gsgm.cli.group.GameTypeGroup
 import cn.xdwanj.gsgm.data.Defaults
 import cn.xdwanj.gsgm.data.enum.Platform
+import cn.xdwanj.gsgm.data.setting.GsgmHistory
 import cn.xdwanj.gsgm.data.setting.GsgmInfo
 import cn.xdwanj.gsgm.data.setting.GsgmSetting
 import cn.xdwanj.gsgm.data.setting.GsgmWrapper
@@ -31,7 +32,7 @@ class InitControllerImpl(
   private val objectMapper: ObjectMapper,
 ) : InitController {
 
-  override suspend fun initActionInteract(
+  override suspend fun initActionByInteract(
     isLibrary: Boolean,
     gameTypeGroup: GameTypeGroup,
     pathList: List<File>,
@@ -46,13 +47,13 @@ class InitControllerImpl(
 
     val platform: Platform? = getPlatformAll(gameTypeGroup)
 
+    // 交互模式
     gameFileList.forEach { gameFile ->
       printlnLine()
-      // 交互模式
 
       val info = Defaults.defaultGsgmInfo.copy(id = IdUtil.getSnowflakeNextId())
 
-      printlnGsgmGameDesc(GsgmWrapper(gsgmInfo = info, gameFile = gameFile))
+      printlnGsgmGameDesc(GsgmWrapper(gsgmInfo = info, gameFile = gameFile, gsgmSetting = GsgmSetting(platform = null)))
 
       // 获取当前游戏平台
       val currentPlatform: Platform = platform ?: run {
@@ -99,7 +100,6 @@ class InitControllerImpl(
       val log = initGsgm(gameFile, info, setting)
       println(Ansi.colorize(log, yellowText))
 
-      printlnLine()
     }
 
     0
@@ -134,11 +134,9 @@ class InitControllerImpl(
     gsgmInfo: GsgmInfo,
     gsgmSetting: GsgmSetting,
   ): String {
-    val gsgmDirPath = "${gameFile.absolutePath}/${GsgmFileName.GSGM_DIR}"
+    val gsgmDirPath = "${gameFile.absolutePath}/${GsgmFileName.GSGM_DIR}".also { FileUtil.mkdir(it) }
     val infoPath = "$gsgmDirPath/${GsgmFileName.INFO}"
     val settingPath = "$gsgmDirPath/${GsgmFileName.SETTING}"
-
-    FileUtil.mkdir(gsgmDirPath)
 
     val infoJson = objectMapper.writeValueAsString(gsgmInfo).let { JSONUtil.formatJsonStr(it) }
     val settingJson = objectMapper.writeValueAsString(gsgmSetting).let { JSONUtil.formatJsonStr(it) }
