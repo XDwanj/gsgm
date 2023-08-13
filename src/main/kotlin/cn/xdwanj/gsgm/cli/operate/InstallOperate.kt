@@ -1,6 +1,5 @@
 package cn.xdwanj.gsgm.cli.operate
 
-import cn.xdwanj.gsgm.cli.converter.FileConverter
 import kotlinx.coroutines.runBlocking
 import org.dromara.hutool.core.io.file.FileUtil
 import org.slf4j.LoggerFactory

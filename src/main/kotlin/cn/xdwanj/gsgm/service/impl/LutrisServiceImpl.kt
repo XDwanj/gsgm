@@ -35,6 +35,7 @@ import org.dromara.hutool.core.io.file.FileUtil
 import org.dromara.hutool.swing.img.ImgUtil
 import org.slf4j.LoggerFactory
 import org.springframework.stereotype.Service
+import org.springframework.transaction.annotation.Transactional
 import java.awt.Color
 import java.io.File
 import java.math.BigDecimal
@@ -187,6 +188,7 @@ class LutrisServiceImpl(
     )
   }
 
+  @Transactional
   override suspend fun installLutrisGame(gsgmWrapper: GsgmWrapper): LutrisGame = withContext(Dispatchers.IO) {
 
     val scriptPath = gameScriptPath.also { FileUtil.mkdir(it) }
@@ -224,6 +226,7 @@ class LutrisServiceImpl(
     lutrisGame
   }
 
+  @Transactional
   override suspend fun updateInstallLutrisGame(wrapper: GsgmWrapper): LutrisRunScript {
     val gsgmId = wrapper.gsgmInfo!!.id!!
 
@@ -255,15 +258,17 @@ class LutrisServiceImpl(
     return lutrisRunScript
   }
 
+  @Transactional
   override suspend fun insertLutrisDB(gameFile: File): LutrisGame = withContext(Dispatchers.IO) {
     if (FileUtil.exists("${gameFile.absolutePath}/.gsgm")
         .not()
     ) throw IllegalArgumentException("gameFile 并非游戏文件夹: $gameFile")
 
     val gameWrapper = libraryService.getGsgmWrapperByFile(gameFile)
-    this@LutrisServiceImpl.upsertLutrisDB(gameWrapper)
+    upsertLutrisDB(gameWrapper)
   }
 
+  @Transactional
   override suspend fun upsertLutrisDB(gsgmWrapper: GsgmWrapper): LutrisGame = withContext(Dispatchers.IO) {
     val slug = LutrisConstant.SLUG_PREFIX + gsgmWrapper.gsgmInfo!!.id!!
     val lutrisGame = getLutrisGameByGsgmWrapper(gsgmWrapper)
@@ -299,9 +304,6 @@ class LutrisServiceImpl(
 
     // remove rel table
     try {
-      // lutrisGameMapper.updateChain()
-      //   .`in`(LutrisRelGameToCategories::gameId, idList)
-      //   .remove()
       lutrisRelGameToCategoriesMapper.updateChain()
         .`in`(LutrisRelGameToCategories::gameId, idList)
         .remove()
@@ -354,7 +356,7 @@ class LutrisServiceImpl(
   override suspend fun cleanLutrisIcon(): Boolean = withContext(Dispatchers.IO) {
     try {
       FileUtil.ls(iconPath)
-        .filter { it.name.startsWith(LutrisConstant.ICON_PREFIX, false) }
+        .filter { it.name.startsWith(ICON_PREFIX, false) }
         .forEach { FileUtil.del(it) }
 
       return@withContext true

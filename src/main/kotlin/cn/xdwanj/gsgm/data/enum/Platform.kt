@@ -7,7 +7,7 @@ enum class Platform(
   val code: Int,
   @get:JsonValue
   val value: String,
-  val runner: String
+  val runner: String,
 ) {
   Windows(0, "Windows", "wine"),
 

@@ -19,7 +19,7 @@ import java.util.concurrent.Callable
   sortSynopsis = false,
 )
 class CleanOperate(
-  private val cleanController: CleanController
+  private val cleanController: CleanController,
 ) : Callable<Int> {
 
   override fun call(): Int = runBlocking {

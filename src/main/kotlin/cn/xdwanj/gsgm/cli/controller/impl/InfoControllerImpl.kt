@@ -2,13 +2,14 @@ package cn.xdwanj.gsgm.cli.controller.impl
 
 import cn.xdwanj.gsgm.base.LutrisConstant
 import cn.xdwanj.gsgm.cli.controller.InfoController
+import cn.xdwanj.gsgm.cli.print.GsgmPrinter
+import cn.xdwanj.gsgm.cli.print.output.printlnLine
 import cn.xdwanj.gsgm.config.FlexibleDataSource
 import cn.xdwanj.gsgm.data.entity.LutrisGame
 import cn.xdwanj.gsgm.data.mapper.LutrisGameMapper
 import cn.xdwanj.gsgm.data.setting.GsgmWrapper
 import cn.xdwanj.gsgm.service.LibraryService
 import cn.xdwanj.gsgm.util.extensions.queryChain
-import cn.xdwanj.gsgm.util.topfun.printlnLine
 import cn.xdwanj.kcolor.Ansi
 import cn.xdwanj.kcolor.AttrTemplate.greenText
 import cn.xdwanj.kcolor.AttrTemplate.yellowText
@@ -29,7 +30,7 @@ class InfoControllerImpl(
 
   override suspend fun infoAction(
     libraryPathList: List<File>?,
-    gsgmIdList: List<Long>
+    gsgmIdList: List<Long>,
   ): Int = withContext(Dispatchers.IO) {
 
     // 有效的 gsgm list
@@ -51,14 +52,14 @@ class InfoControllerImpl(
       val gsgmWrapper = gsgmWrapperList.firstOrNull { wrapper -> wrapper.gsgmInfo?.id == id }
       val lutrisGame = lutrisGameList.firstOrNull { it.slug == slug }
 
-      printlnLine()
+      GsgmPrinter.printlnLine()
       println(Ansi.colorize(slug, greenText))
       val gsgmJson = objectMapper.writeValueAsString(gsgmWrapper).let { JSONUtil.formatJsonStr(it) }
       val lutrisJson = objectMapper.writeValueAsString(lutrisGame).let { JSONUtil.formatJsonStr(it) }
 
       val log = Ansi.colorize(gsgmJson + "\n" + lutrisJson, yellowText)
       println(log)
-      printlnLine()
+      GsgmPrinter.printlnLine()
     }
 
     flexibleDataSource.popDB()

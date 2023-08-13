@@ -146,6 +146,6 @@ data class LutrisGame(
    * 游戏的Discord ID
    * null
    */
-  var discordId: String? = null
+  var discordId: String? = null,
 )
 

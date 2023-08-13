@@ -11,7 +11,7 @@ import java.io.File
 data class CheckState(
   var gameFile: File,
   var level: Int = 0,
-  var messageList: MutableList<String> = mutableListOf()
+  var messageList: MutableList<String> = mutableListOf(),
 ) {
   operator fun plusAssign(checkState: CheckState) {
     this.level += checkState.level

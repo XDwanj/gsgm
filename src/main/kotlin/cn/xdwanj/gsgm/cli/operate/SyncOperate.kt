@@ -1,7 +1,6 @@
 package cn.xdwanj.gsgm.cli.operate
 
 import cn.xdwanj.gsgm.cli.controller.SyncController
-import cn.xdwanj.gsgm.cli.converter.FileConverter
 import cn.xdwanj.gsgm.cli.group.DataSyncDirectionGroup
 import kotlinx.coroutines.runBlocking
 import org.slf4j.LoggerFactory
@@ -23,7 +22,7 @@ import java.util.concurrent.Callable
   sortSynopsis = false,
 )
 class SyncOperate(
-  private val syncController: SyncController
+  private val syncController: SyncController,
 ) : Callable<Int> {
 
   private val logger = LoggerFactory.getLogger(SyncOperate::class.java)

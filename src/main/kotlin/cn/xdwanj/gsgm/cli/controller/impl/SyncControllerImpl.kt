@@ -2,16 +2,15 @@ package cn.xdwanj.gsgm.cli.controller.impl
 
 import cn.xdwanj.gsgm.base.LutrisConstant
 import cn.xdwanj.gsgm.cli.controller.SyncController
+import cn.xdwanj.gsgm.cli.print.GsgmPrinter
+import cn.xdwanj.gsgm.cli.print.output.printSingleTask
+import cn.xdwanj.gsgm.cli.print.output.printlnGsgmGameDesc
+import cn.xdwanj.gsgm.cli.print.output.printlnLevelTask
 import cn.xdwanj.gsgm.data.entity.LutrisGame
 import cn.xdwanj.gsgm.data.mapper.LutrisGameMapper
 import cn.xdwanj.gsgm.service.LibraryService
 import cn.xdwanj.gsgm.service.LutrisService
 import cn.xdwanj.gsgm.util.extensions.queryChain
-import cn.xdwanj.gsgm.util.topfun.printlnGsgmGameDesc
-import cn.xdwanj.kcolor.Ansi
-import cn.xdwanj.kcolor.AttrTemplate.blueText
-import cn.xdwanj.kcolor.AttrTemplate.italic
-import cn.xdwanj.kcolor.AttrTemplate.redText
 import kotlinx.coroutines.*
 import org.slf4j.LoggerFactory
 import org.springframework.stereotype.Component
@@ -39,9 +38,9 @@ class SyncControllerImpl(
 
       try {
         lutrisService.updateInstallLutrisGame(wrapper)
-        println(Ansi.colorize("    同步成功", italic))
+        GsgmPrinter.printSingleTask("Force sync succeeded")
       } catch (e: Exception) {
-        logger.error("    安装失败: $wrapper", e)
+        GsgmPrinter.printSingleTask("Force sync failed: $wrapper")
       }
     }
 
@@ -61,9 +60,9 @@ class SyncControllerImpl(
       printlnGsgmGameDesc(wrapper)
       try {
         lutrisService.installLutrisGame(wrapper)
-        println(Ansi.colorize("    强制同步成功", italic))
+        GsgmPrinter.printSingleTask("Force sync succeeded")
       } catch (e: Exception) {
-        println((Ansi.colorize("    安装失败: $wrapper", redText)))
+        GsgmPrinter.printSingleTask("Force sync failed: $wrapper")
       }
     }
 
@@ -80,15 +79,19 @@ class SyncControllerImpl(
       val newWrapper = libraryService.getGsgmWrapperByLutrisGame(lutrisGame)
       printlnGsgmGameDesc(newWrapper)
 
-      println(Ansi.colorize("    :: ", blueText) + "pgaDb 同步中...")
+      GsgmPrinter.printlnLevelTask("pgaDb Syncing...")
       lutrisService.upsertLutrisDB(newWrapper)
-      println(Ansi.colorize("    :: ", blueText) + "info 同步中...")
+
+      GsgmPrinter.printlnLevelTask("info Syncing...")
       libraryService.installGsgmInfo(newWrapper)
-      println(Ansi.colorize("    :: ", blueText) + "setting 同步中...")
+
+      GsgmPrinter.printlnLevelTask("setting Syncing...")
       libraryService.installGsgmSetting(newWrapper)
-      println(Ansi.colorize("    :: ", blueText) + "history 同步中...")
+
+      GsgmPrinter.printlnLevelTask("history Syncing...")
       libraryService.installGsgmHistory(newWrapper)
-      println(Ansi.colorize("    游戏已同步", italic))
+
+      GsgmPrinter.printSingleTask(msg = "game synced")
     }
 
     0

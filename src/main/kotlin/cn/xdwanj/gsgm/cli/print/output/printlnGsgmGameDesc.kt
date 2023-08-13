@@ -1,69 +1,17 @@
-package cn.xdwanj.gsgm.util.topfun
+package cn.xdwanj.gsgm.cli.print.output
 
 import cn.xdwanj.gsgm.base.GsgmFileName
 import cn.xdwanj.gsgm.data.setting.GsgmInfo
 import cn.xdwanj.gsgm.data.setting.GsgmSetting
 import cn.xdwanj.gsgm.data.setting.GsgmWrapper
 import cn.xdwanj.kcolor.Ansi
-import cn.xdwanj.kcolor.AnsiFormat
-import cn.xdwanj.kcolor.AttrTemplate.blueText
-import cn.xdwanj.kcolor.AttrTemplate.bold
-import cn.xdwanj.kcolor.AttrTemplate.greenText
-import cn.xdwanj.kcolor.AttrTemplate.purpleText
+import cn.xdwanj.kcolor.AttrTemplate
 import com.fasterxml.jackson.databind.ObjectMapper
 import com.fasterxml.jackson.module.kotlin.readValue
 import org.dromara.hutool.core.date.DateUtil
 import org.dromara.hutool.core.io.file.FileUtil
 import org.dromara.hutool.core.math.NumberUtil
 import java.math.BigDecimal
-
-inline fun <T> inputReadLn(
-  inputTip: String,
-  errorTip: String? = null,
-  condition: (String) -> Boolean,
-  converter: (String) -> T
-): T {
-  val result: T
-  do {
-    print(inputTip)
-    val inputText = readln().trim()
-
-    if (inputText.isBlank()) {
-      continue
-    }
-
-    val isSuccess = try {
-      condition(inputText)
-    } catch (e: Exception) {
-      println(e)
-      continue
-    }
-
-    if (isSuccess) {
-      result = converter(inputText)
-      break
-    }
-    if (errorTip.isNullOrEmpty().not()) {
-      println(errorTip)
-    }
-    continue
-  } while (true)
-  return result
-}
-
-fun printlnLine(lineLength: Int = 30, mark: String = "-", ansiFormat: AnsiFormat? = null): String {
-  val builder = StringBuilder()
-  for (i in 1..lineLength) {
-    builder.append(mark)
-  }
-  val str = ansiFormat?.let {
-    Ansi.colorize(builder.toString(), ansiFormat)
-  } ?: builder.toString()
-
-  println(str)
-
-  return str
-}
 
 fun printlnGsgmGameDesc(gsgmWrapper: GsgmWrapper): String {
   val objectMapper = ObjectMapper()
@@ -114,13 +62,18 @@ fun printlnGsgmGameDesc(gsgmWrapper: GsgmWrapper): String {
   }
 
   val builder = StringBuilder().apply {
-    append(Ansi.colorize("$id", greenText))
+    append(Ansi.colorize("$id", AttrTemplate.greenText))
     append("/")
-    append(Ansi.colorize("${gsgmWrapper.gameFile?.name}", bold))
+    append(Ansi.colorize("${gsgmWrapper.gameFile?.name}", AttrTemplate.bold))
     append(" ")
-    append(Ansi.colorize("${setting?.platform}", blueText))
+    append(Ansi.colorize("${setting?.platform}", AttrTemplate.blueText))
     append(" ")
-    append(Ansi.colorize("(lastPlayed: ${DateUtil.formatDate(lastGameMoment)}, playTime: $playtime)", purpleText))
+    append(
+      Ansi.colorize(
+        "(lastPlayed: ${DateUtil.formatDate(lastGameMoment)}, playTime: $playtime)",
+        AttrTemplate.purpleText
+      )
+    )
     append("\n")
     append("    ")
     append("'${gsgmWrapper.gameFile?.absolutePath}'")

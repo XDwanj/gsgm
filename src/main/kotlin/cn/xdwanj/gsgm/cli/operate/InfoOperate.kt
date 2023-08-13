@@ -1,7 +1,6 @@
 package cn.xdwanj.gsgm.cli.operate
 
 import cn.xdwanj.gsgm.cli.controller.InfoController
-import cn.xdwanj.gsgm.cli.converter.FileConverter
 import kotlinx.coroutines.runBlocking
 import org.springframework.beans.factory.config.ConfigurableBeanFactory.SCOPE_PROTOTYPE
 import org.springframework.context.annotation.Scope
@@ -21,7 +20,7 @@ import java.util.concurrent.Callable
   sortSynopsis = false,
 )
 class InfoOperate(
-  private val infoController: InfoController
+  private val infoController: InfoController,
 ) : Callable<Int> {
 
   @Option(

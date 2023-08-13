@@ -1,11 +1,11 @@
 package cn.xdwanj.gsgm.cli.controller.impl
 
 import cn.xdwanj.gsgm.cli.controller.ListController
+import cn.xdwanj.gsgm.cli.print.output.printlnGsgmGameDesc
 import cn.xdwanj.gsgm.data.mapper.LutrisGameMapper
 import cn.xdwanj.gsgm.service.LibraryService
 import cn.xdwanj.gsgm.service.LutrisService
 import cn.xdwanj.gsgm.util.extensions.queryChain
-import cn.xdwanj.gsgm.util.topfun.printlnGsgmGameDesc
 import kotlinx.coroutines.coroutineScope
 import org.slf4j.LoggerFactory
 import org.springframework.stereotype.Component

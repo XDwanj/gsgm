@@ -2,6 +2,9 @@ package cn.xdwanj.gsgm.cli.controller.impl
 
 import cn.xdwanj.gsgm.base.LutrisConstant
 import cn.xdwanj.gsgm.cli.controller.RemoveController
+import cn.xdwanj.gsgm.cli.print.GsgmPrinter
+import cn.xdwanj.gsgm.cli.print.output.printlnListTask
+import cn.xdwanj.gsgm.cli.print.output.printlnWaitTask
 import cn.xdwanj.gsgm.data.entity.LutrisGame
 import cn.xdwanj.gsgm.data.entity.LutrisRelGameToCategories
 import cn.xdwanj.gsgm.data.mapper.LutrisGameMapper
@@ -9,9 +12,6 @@ import cn.xdwanj.gsgm.data.mapper.LutrisRelGameToCategoriesMapper
 import cn.xdwanj.gsgm.service.LibraryService
 import cn.xdwanj.gsgm.util.extensions.queryChain
 import cn.xdwanj.gsgm.util.extensions.updateChain
-import cn.xdwanj.kcolor.Ansi
-import cn.xdwanj.kcolor.AttrTemplate.purpleText
-import cn.xdwanj.kcolor.AttrTemplate.yellowText
 import com.fasterxml.jackson.databind.ObjectMapper
 import kotlinx.coroutines.async
 import kotlinx.coroutines.awaitAll
@@ -51,12 +51,11 @@ class RemoveControllerImpl(
 
     // remove gsgm
     removeWrapperList.forEach {
-      println(Ansi.colorize(":: ", purpleText) + "Gsgm 游戏删除中...")
+      GsgmPrinter.printlnWaitTask("Gsgm game deleting...")
       FileUtil.del(it.gameFile)
     }
 
     // remove lutris
-    // lutrisGameMapper.deleteBatchIds(removeLutrisGameList.map { it.id })
     lutrisGameMapper.updateChain()
       .`in`(LutrisGame::id, removeLutrisGameList.map { it.id })
       .remove()
@@ -64,16 +63,15 @@ class RemoveControllerImpl(
       .`in`(LutrisRelGameToCategories::gameId, gsgmIdList)
       .remove()
 
-    println(Ansi.colorize("Gsgm 库删除成功的有:"))
-    removeWrapperList.forEach {
-      println(Ansi.colorize(objectMapper.writeValueAsString(it).let { JSONUtil.formatJsonStr(it) }, yellowText))
-    }
+    GsgmPrinter.printlnListTask(
+      heading = "The games successfully removed by the Gsgm library are:",
+      msgList = removeWrapperList.map { objectMapper.writeValueAsString(it).let { JSONUtil.formatJsonStr(it) } }
+    )
 
-    println(Ansi.colorize("Lutris 库删除成功的有:"))
-    removeLutrisGameList.forEach {
-      println(Ansi.colorize(objectMapper.writeValueAsString(it).let { JSONUtil.formatJsonStr(it) }, yellowText))
-    }
-
+    GsgmPrinter.printlnListTask(
+      heading = "Games successfully removed from the Lutris library are:",
+      msgList = removeWrapperList.map { objectMapper.writeValueAsString(it).let { JSONUtil.formatJsonStr(it) } }
+    )
     0
   }
 }

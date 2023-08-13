@@ -1,7 +1,6 @@
 package cn.xdwanj.gsgm.cli.operate
 
 import cn.xdwanj.gsgm.cli.controller.CheckController
-import cn.xdwanj.gsgm.cli.converter.FileConverter
 import kotlinx.coroutines.runBlocking
 import org.slf4j.LoggerFactory
 import org.springframework.beans.factory.config.ConfigurableBeanFactory.SCOPE_PROTOTYPE
@@ -22,7 +21,7 @@ import java.util.concurrent.Callable
   usageHelpAutoWidth = true,
 )
 class CheckOperate(
-  private val checkController: CheckController
+  private val checkController: CheckController,
 ) : Callable<Int> {
 
   private val logger = LoggerFactory.getLogger(CheckOperate::class.java)

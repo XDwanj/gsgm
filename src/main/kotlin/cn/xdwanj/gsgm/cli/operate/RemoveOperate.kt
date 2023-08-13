@@ -1,7 +1,6 @@
 package cn.xdwanj.gsgm.cli.operate
 
 import cn.xdwanj.gsgm.cli.controller.RemoveController
-import cn.xdwanj.gsgm.cli.converter.FileConverter
 import kotlinx.coroutines.runBlocking
 import org.slf4j.LoggerFactory
 import org.springframework.beans.factory.config.ConfigurableBeanFactory.SCOPE_PROTOTYPE

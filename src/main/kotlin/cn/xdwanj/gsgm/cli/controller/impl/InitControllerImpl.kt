@@ -3,17 +3,19 @@ package cn.xdwanj.gsgm.cli.controller.impl
 import cn.xdwanj.gsgm.base.GsgmFileName
 import cn.xdwanj.gsgm.cli.controller.InitController
 import cn.xdwanj.gsgm.cli.group.GameTypeGroup
+import cn.xdwanj.gsgm.cli.print.GsgmPrinter
+import cn.xdwanj.gsgm.cli.print.input.inputReadLn
+import cn.xdwanj.gsgm.cli.print.output.printlnGsgmGameDesc
+import cn.xdwanj.gsgm.cli.print.output.printlnLevelTask
+import cn.xdwanj.gsgm.cli.print.output.printlnLine
 import cn.xdwanj.gsgm.data.Defaults
 import cn.xdwanj.gsgm.data.enum.Platform
-import cn.xdwanj.gsgm.data.setting.GsgmHistory
 import cn.xdwanj.gsgm.data.setting.GsgmInfo
 import cn.xdwanj.gsgm.data.setting.GsgmSetting
 import cn.xdwanj.gsgm.data.setting.GsgmWrapper
 import cn.xdwanj.gsgm.service.LibraryService
-import cn.xdwanj.gsgm.util.topfun.inputReadLn
-import cn.xdwanj.gsgm.util.topfun.printlnGsgmGameDesc
-import cn.xdwanj.gsgm.util.topfun.printlnLine
-import cn.xdwanj.kcolor.Ansi
+import cn.xdwanj.gsgm.util.extensions.relationPath
+import cn.xdwanj.kcolor.Ansi.colorize
 import cn.xdwanj.kcolor.AttrTemplate.purpleText
 import cn.xdwanj.kcolor.AttrTemplate.redText
 import cn.xdwanj.kcolor.AttrTemplate.underline
@@ -49,7 +51,7 @@ class InitControllerImpl(
 
     // 交互模式
     gameFileList.forEach { gameFile ->
-      printlnLine()
+      GsgmPrinter.printlnLine()
 
       val info = Defaults.defaultGsgmInfo.copy(id = IdUtil.getSnowflakeNextId())
 
@@ -58,13 +60,14 @@ class InitControllerImpl(
       // 获取当前游戏平台
       val currentPlatform: Platform = platform ?: run {
         val inputTip = """
-          游戏平台可选项(序号):
-            ${Platform.Windows.code} ${Platform.Windows.value}
-            ${Platform.Linux.code} ${Platform.Linux.value}
-          输入: 
+          Game platform options (serial number)
+            ${colorize(Platform.Windows.code.toString(), purpleText)} ${colorize(Platform.Windows.value, underline)}
+            ${colorize(Platform.Linux.code.toString(), purpleText)} ${colorize(Platform.Linux.value, underline)}
+          please enter: 
         """.trimIndent()
         val currentPlatform =
-          inputReadLn(inputTip = inputTip, errorTip = Ansi.colorize("序号无效，请输入有效序号", redText),
+          GsgmPrinter.inputReadLn(inputTip = inputTip,
+            errorTip = colorize("The serial number is invalid, please enter a valid serial number", redText),
             condition = { it.toInt() == Platform.Windows.code || it.toInt() == Platform.Linux.code },
             converter = {
               when (it.lowercase()) {
@@ -80,25 +83,32 @@ class InitControllerImpl(
       val executableFileList = listExecutableFile(gameFile, currentPlatform)
 
       // 选择可执行文件
-      println("可执行文件(序号):")
+      println("Executable file (serial number):")
       executableFileList.forEachIndexed { index, file ->
-        println("${Ansi.colorize(index.toString(), purpleText)} ${Ansi.colorize(file.name, underline)}")
+        val relationPath = file.relationPath(gameFile)
+        println("${colorize(index.toString(), purpleText)} ${colorize(relationPath, underline)}")
       }
-      val exeFile =
-        inputReadLn(inputTip = "选择可执行文件(序号): ", errorTip = Ansi.colorize("输入序号无效!!", redText),
-          condition = {
-            val index = it.toInt()
-            index in 0 until executableFileList.count()
-          }, converter = {
-            val index = it.toInt()
-            executableFileList[index]
-          })
-      println("已选择可执行文件 ${Ansi.colorize(exeFile.name, underline)}")
+      val exeFile = if (executableFileList.isNotEmpty()) {
+        GsgmPrinter.inputReadLn(inputTip = "Select executable file (serial number): ",
+          errorTip = colorize("The serial number entered is invalid!!", redText),
+          condition = { it.toInt() in 0 until executableFileList.count() },
+          converter = { executableFileList[it.toInt()] }
+        )
+      } else {
+        null
+      }
 
-      val setting = Defaults.defaultGsgmSetting.copy(executeLocation = exeFile.name, platform = currentPlatform)
+      val relationPath = exeFile?.relationPath(gameFile)
+      if (relationPath.isNullOrBlank()) {
+        GsgmPrinter.printlnLevelTask("Executable not found")
+      } else {
+        println("Executable selected: ${colorize(relationPath, underline)}")
+      }
+
+      val setting = Defaults.defaultGsgmSetting.copy(executeLocation = relationPath, platform = currentPlatform)
 
       val log = initGsgm(gameFile, info, setting)
-      println(Ansi.colorize(log, yellowText))
+      println(colorize(log, yellowText))
 
     }
 
@@ -117,14 +127,19 @@ class InitControllerImpl(
     // windows
     return when (platform) {
       Platform.Windows -> {
-        FileUtil.ls(gameFile.absolutePath)
-          .filter { it.isFile }
-          .filter { it.name.trim().endsWith(".exe", true) || it.name.trim().endsWith(".bat", true) }
+        // FileUtil.ls(gameFile.absolutePath)
+        //   .filter { it.isFile }
+        //   .filter { it.name.trim().endsWith(".exe", true) || it.name.trim().endsWith(".bat", true) }
+
+        // 这里只获取两层目录的文件
+        FileUtil.loopFiles(gameFile, 2) {
+          it.name.trim().endsWith(".exe", true)
+              || it.name.trim().endsWith(".bat", true)
+        }
       }
 
       Platform.Linux -> {
-        FileUtil.ls(gameFile.absolutePath)
-          .filter { it.isFile }
+        FileUtil.loopFiles(gameFile, 2, null)
       }
     }
   }
@@ -172,7 +187,7 @@ class InitControllerImpl(
     gameFileList.forEach {
       printlnGsgmGameDesc(GsgmWrapper(gameFile = it, gsgmInfo = info, gsgmSetting = setting))
       val log = initGsgm(it, info, setting)
-      println(Ansi.colorize(log, yellowText))
+      println(colorize(log, yellowText))
     }
 
     0

@@ -17,6 +17,7 @@ class GsgmApplication(
   private var exitCode = 0
 
   override fun run(vararg args: String?) {
+
     exitCode = CommandLine(gsgmCommand, factory)
       .execute(*args)
 

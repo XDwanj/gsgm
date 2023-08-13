@@ -1,8 +1,11 @@
 package cn.xdwanj.gsgm.cli.controller.impl
 
 import cn.xdwanj.gsgm.cli.controller.SearchController
+import cn.xdwanj.gsgm.cli.print.GsgmPrinter
+import cn.xdwanj.gsgm.cli.print.PrintLevel
+import cn.xdwanj.gsgm.cli.print.output.printlnGsgmGameDesc
+import cn.xdwanj.gsgm.cli.print.output.printlnLevelTask
 import cn.xdwanj.gsgm.service.LibraryService
-import cn.xdwanj.gsgm.util.topfun.printlnGsgmGameDesc
 import kotlinx.coroutines.async
 import kotlinx.coroutines.awaitAll
 import kotlinx.coroutines.coroutineScope
@@ -28,10 +31,14 @@ class SearchControllerImpl(
 
     if (searchList.isEmpty()) {
       println("当前选择的库不存在有此关键字的游戏")
+      GsgmPrinter.printlnLevelTask(
+        message = "There is no game with this keyword in the currently selected library",
+        level = PrintLevel.WARN
+      )
       return@coroutineScope 0
     }
 
-    println("相关游戏如下:")
+    println("related games are as follows")
     searchList.forEach {
       printlnGsgmGameDesc(it)
     }

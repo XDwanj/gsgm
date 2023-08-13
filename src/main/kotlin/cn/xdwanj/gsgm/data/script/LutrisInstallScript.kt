@@ -1,7 +1,5 @@
 package cn.xdwanj.gsgm.data.script
 
-import cn.xdwanj.gsgm.data.enum.Platform
-
 /**
  * lutris 安装脚本
  */
@@ -37,15 +35,15 @@ data class LutrisInstallScript(
   var version: String? = null,
   var slug: String? = null,
   var runner: String? = null,
-  var script: GameScript? = null
+  var script: GameScript? = null,
 ) {
   data class GameScript(
-    var game: GameDetails? = null
+    var game: GameDetails? = null,
   )
 
   data class GameDetails(
     var exe: String? = null,
-    var prefix: String? = null
+    var prefix: String? = null,
   )
 }
 
