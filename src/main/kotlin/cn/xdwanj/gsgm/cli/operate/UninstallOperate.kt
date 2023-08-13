@@ -1,6 +1,6 @@
 package cn.xdwanj.gsgm.cli.operate
 
-import cn.xdwanj.gsgm.cli.controller.RemoveController
+import cn.xdwanj.gsgm.cli.controller.UninstallController
 import kotlinx.coroutines.runBlocking
 import org.slf4j.LoggerFactory
 import org.springframework.beans.factory.config.ConfigurableBeanFactory.SCOPE_PROTOTYPE
@@ -13,18 +13,18 @@ import java.util.concurrent.Callable
 @Scope(SCOPE_PROTOTYPE)
 @Component
 @Command(
-  name = "remove",
+  name = "uninstall",
   mixinStandardHelpOptions = true,
-  description = ["删除游戏"],
+  description = ["卸载游戏，但不删游戏文件"],
   sortOptions = false,
   usageHelpAutoWidth = true,
   sortSynopsis = false,
 )
-class RemoveOperate(
-  private val removeController: RemoveController,
+class UninstallOperate(
+  private val uninstallController: UninstallController,
 ) : Callable<Int> {
 
-  private val logger = LoggerFactory.getLogger(RemoveOperate::class.java)
+  private val logger = LoggerFactory.getLogger(UninstallOperate::class.java)
 
   @Option(
     names = ["-l", "--library-path"],
@@ -46,7 +46,7 @@ class RemoveOperate(
     logger.info("libraryPath = {}", libraryPathList)
     logger.info("gsgmIdList = {}", gsgmIdList)
 
-    removeController.removeAction(libraryPathList, gsgmIdList)
+    uninstallController.removeAction(libraryPathList, gsgmIdList)
   }
 }
 

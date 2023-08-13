@@ -7,6 +7,7 @@ import cn.xdwanj.gsgm.cli.print.output.printSingleTask
 import cn.xdwanj.gsgm.cli.print.output.printlnGsgmGameDesc
 import cn.xdwanj.gsgm.cli.print.output.printlnLevelTask
 import cn.xdwanj.gsgm.data.entity.LutrisGame
+import cn.xdwanj.gsgm.data.entity.gsgmId
 import cn.xdwanj.gsgm.data.mapper.LutrisGameMapper
 import cn.xdwanj.gsgm.service.LibraryService
 import cn.xdwanj.gsgm.service.LutrisService
@@ -38,9 +39,9 @@ class SyncControllerImpl(
 
       try {
         lutrisService.updateInstallLutrisGame(wrapper)
-        GsgmPrinter.printSingleTask("Force sync succeeded")
+        GsgmPrinter.printSingleTask("Sync succeeded")
       } catch (e: Exception) {
-        GsgmPrinter.printSingleTask("Force sync failed: $wrapper")
+        GsgmPrinter.printSingleTask("Sync failed: $wrapper")
       }
     }
 
@@ -71,24 +72,36 @@ class SyncControllerImpl(
 
   override suspend fun syncActionLTG(libraryPathList: List<File>): Int = coroutineScope {
 
-    val lutrisGameList = lutrisGameMapper.queryChain()
+    val wrapperMap = libraryPathList.map {
+      libraryService.deepGameFile(it.absolutePath)
+        .map { async { libraryService.getGsgmWrapperByFile(it) } }
+        .awaitAll()
+    }.flatten()
+      .associateBy { it.gsgmInfo!!.id!! }
+
+    val lutrisGameMap = lutrisGameMapper.queryChain()
       .likeRight(LutrisGame::slug, LutrisConstant.SLUG_PREFIX)
       .list()
+      .filter { wrapperMap[it.gsgmId] != null }
 
-    lutrisGameList.forEach { lutrisGame ->
-      val newWrapper = libraryService.getGsgmWrapperByLutrisGame(lutrisGame)
-      printlnGsgmGameDesc(newWrapper)
+    lutrisGameMap.forEach { lutrisGame ->
+      val wrapper = wrapperMap[lutrisGame.gsgmId]!!
+      val newWrapper = libraryService.getGsgmWrapperByLutrisGame(lutrisGame, wrapper.gameFile)
+      logger.info("lutrisGame=$lutrisGame")
+      logger.info("wrapper=$wrapper")
+      logger.info("newWrapper=$newWrapper")
+      printlnGsgmGameDesc(wrapper)
 
-      GsgmPrinter.printlnLevelTask("pgaDb Syncing...")
-      lutrisService.upsertLutrisDB(newWrapper)
+      // GsgmPrinter.printlnLevelTask("pgaDb syncing...")
+      // lutrisService.upsertLutrisDB(newWrapper)
 
-      GsgmPrinter.printlnLevelTask("info Syncing...")
+      GsgmPrinter.printlnLevelTask("info syncing...")
       libraryService.installGsgmInfo(newWrapper)
 
-      GsgmPrinter.printlnLevelTask("setting Syncing...")
+      GsgmPrinter.printlnLevelTask("setting syncing...")
       libraryService.installGsgmSetting(newWrapper)
 
-      GsgmPrinter.printlnLevelTask("history Syncing...")
+      GsgmPrinter.printlnLevelTask("history syncing...")
       libraryService.installGsgmHistory(newWrapper)
 
       GsgmPrinter.printSingleTask(msg = "game synced")

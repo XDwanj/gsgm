@@ -53,12 +53,10 @@ fun printlnGsgmGameDesc(gsgmWrapper: GsgmWrapper): String {
     val minute = NumberUtil.sub(gameTime, hour).let {
       NumberUtil.mul(it, 60)
     }
-
-    "${hour}h${minute.toInt()}min"
-
+    "$hour h ${minute.toInt()} min"
   } else {
     val minute = NumberUtil.mul(gameTime, 60)
-    "${minute}min"
+    "${minute.toInt()} min"
   }
 
   val builder = StringBuilder().apply {

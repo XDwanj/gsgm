@@ -1,5 +1,6 @@
 package cn.xdwanj.gsgm.data.entity
 
+import cn.xdwanj.gsgm.base.LutrisConstant
 import com.baomidou.mybatisplus.annotation.IdType
 import com.baomidou.mybatisplus.annotation.TableId
 import com.baomidou.mybatisplus.annotation.TableName
@@ -148,4 +149,10 @@ data class LutrisGame(
    */
   var discordId: String? = null,
 )
+
+val LutrisGame.gsgmId: Long
+  get() = this.slug!!.removePrefix(LutrisConstant.SLUG_PREFIX)
+    .toLong()
+
+
 

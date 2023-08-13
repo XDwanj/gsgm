@@ -16,6 +16,7 @@ import cn.xdwanj.gsgm.data.setting.GsgmSetting
 import cn.xdwanj.gsgm.data.setting.GsgmWrapper
 import cn.xdwanj.gsgm.service.LibraryService
 import cn.xdwanj.gsgm.util.YamlUtils
+import cn.xdwanj.gsgm.util.extensions.relationPath
 import cn.xdwanj.kcolor.Ansi
 import cn.xdwanj.kcolor.AttrTemplate.italic
 import cn.xdwanj.kcolor.AttrTemplate.redText
@@ -86,7 +87,7 @@ class LibraryServiceImpl(
     gsgmWrapper
   }
 
-  override suspend fun getGsgmWrapperByLutrisGame(lutrisGame: LutrisGame): GsgmWrapper = withContext(Dispatchers.IO) {
+  override suspend fun getGsgmWrapperByLutrisGame(lutrisGame: LutrisGame, gameFile: File?): GsgmWrapper = withContext(Dispatchers.IO) {
     val gsgmId = lutrisGame.slug!!.split("-").last().toLong()
     val runScriptPath = "${LutrisGlobalSettings.gameScriptPath}/${lutrisGame.slug!!}.${LutrisExtName.SCRIPT_SUFFIX}"
     val lastplayed = lutrisGame.lastplayed
@@ -99,14 +100,19 @@ class LibraryServiceImpl(
     val platform = Platform.values().first { lutrisGame.platform == it.value }
 
     // gameFile
-    val gameFile = File(lutrisRunScript.game!!.exe!!).parentFile
+    // 这里不可以用 parentFile 获取 游戏目录
 
     // info
     val info = GsgmInfo(id = gsgmId)
 
     // setting
+    val executeLocation = if (gameFile != null) {
+      File(lutrisRunScript.game!!.exe!!).relationPath(gameFile)
+    } else {
+      null
+    }
     val setting = GsgmSetting(
-      executeLocation = File(lutrisRunScript.game?.exe!!).name,
+      executeLocation = executeLocation,
       winePrefix = "${GsgmFileName.GSGM_DIR}/${File(lutrisRunScript.game?.prefix!!).name}",
       localeCharSet = localeCharSet,
       platform = platform,
@@ -244,7 +250,9 @@ class LibraryServiceImpl(
     val info = wrapper.gsgmInfo!!.copy(description = null)
     val infoPath = "${gameFile.absolutePath}/${GsgmFileName.GSGM_DIR}/${GsgmFileName.INFO}"
     val oldInfo =
-      FileUtil.readUtf8String(infoPath).let { objectMapper.readValue<GsgmInfo>(it) }.copy(description = null)
+      FileUtil.readUtf8String(infoPath)
+        .let { objectMapper.readValue<GsgmInfo>(it) }
+        .copy(description = null)
     val infoJson = objectMapper.writeValueAsString(info).let { JSONUtil.formatJsonStr(it) }
 
     logger.info("oldInfo = $oldInfo")

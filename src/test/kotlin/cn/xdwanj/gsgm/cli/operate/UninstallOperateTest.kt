@@ -9,13 +9,13 @@ import org.springframework.boot.test.context.SpringBootTest
 import picocli.CommandLine
 
 @SpringBootTest
-class RemoveOperateTest {
+class UninstallOperateTest {
 
   @Autowired
   private lateinit var iFactory: CommandLine.IFactory
 
   @Autowired
-  private lateinit var removeOperate: RemoveOperate
+  private lateinit var uninstallOperate: UninstallOperate
 
   @BeforeEach
   fun beforeEach() {
@@ -29,7 +29,7 @@ class RemoveOperateTest {
 
   @Test
   fun `gsgm remove -hV`(): Unit = runBlocking {
-    CommandLine(removeOperate, iFactory).execute(
+    CommandLine(uninstallOperate, iFactory).execute(
       "-hV"
     )
   }

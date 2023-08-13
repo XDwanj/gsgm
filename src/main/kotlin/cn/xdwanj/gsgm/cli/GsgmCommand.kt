@@ -25,7 +25,7 @@ import java.util.concurrent.Callable
     InfoOperate::class,
     // InstallOperate::class,
     InitOperate::class,
-    RemoveOperate::class,
+    UninstallOperate::class,
     CheckOperate::class,
     SyncOperate::class,
     CleanOperate::class,

@@ -16,10 +16,6 @@ object YamlUtils {
   fun <T> toYaml(bean: T): String {
     return ByteArrayOutputStream().use { outputStream ->
       IoUtil.toUtf8Writer(outputStream).use {
-        // val options = DumperOptions().apply {
-        //   defaultFlowStyle = DumperOptions.FlowStyle.BLOCK
-        //   // indicatorIndent = 2
-        // }
         YamlUtil.dump(bean, it)
       }
       String(outputStream.toByteArray())

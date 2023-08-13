@@ -34,7 +34,7 @@ interface LibraryService {
    */
   suspend fun getGsgmWrapperByFile(gameFile: File): GsgmWrapper
 
-  suspend fun getGsgmWrapperByLutrisGame(lutrisGame: LutrisGame): GsgmWrapper
+  suspend fun getGsgmWrapperByLutrisGame(lutrisGame: LutrisGame, gameFile: File?): GsgmWrapper
 
   suspend fun checkGameGsgmDir(gameFile: File): CheckState
 

@@ -34,4 +34,12 @@ class SyncOperateTest {
       "-hV"
     )
   }
+
+  @Test
+  fun `gsgm sync -ltg xxx`() {
+    CommandLine(syncOperate, iFactory).execute(
+      // "gsgm sync -ltg ./LutrisLibrary"
+      "-ltg", "/home/xdwanj/Game/ExtGame/LutrisLibrary"
+    )
+  }
 }

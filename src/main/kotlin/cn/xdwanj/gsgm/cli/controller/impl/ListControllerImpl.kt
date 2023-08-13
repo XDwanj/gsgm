@@ -27,7 +27,7 @@ class ListControllerImpl(
       .reversed()
       .forEach {
         val wrapper = try {
-          libraryService.getGsgmWrapperByLutrisGame(it)
+          libraryService.getGsgmWrapperByLutrisGame(it, null)
         } catch (e: Exception) {
           logger.error("", e)
           return@coroutineScope 1

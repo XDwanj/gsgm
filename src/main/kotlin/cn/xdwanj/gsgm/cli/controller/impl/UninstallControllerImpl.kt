@@ -1,10 +1,9 @@
 package cn.xdwanj.gsgm.cli.controller.impl
 
 import cn.xdwanj.gsgm.base.LutrisConstant
-import cn.xdwanj.gsgm.cli.controller.RemoveController
+import cn.xdwanj.gsgm.cli.controller.UninstallController
 import cn.xdwanj.gsgm.cli.print.GsgmPrinter
 import cn.xdwanj.gsgm.cli.print.output.printlnListTask
-import cn.xdwanj.gsgm.cli.print.output.printlnWaitTask
 import cn.xdwanj.gsgm.data.entity.LutrisGame
 import cn.xdwanj.gsgm.data.entity.LutrisRelGameToCategories
 import cn.xdwanj.gsgm.data.mapper.LutrisGameMapper
@@ -16,21 +15,20 @@ import com.fasterxml.jackson.databind.ObjectMapper
 import kotlinx.coroutines.async
 import kotlinx.coroutines.awaitAll
 import kotlinx.coroutines.coroutineScope
-import org.dromara.hutool.core.io.file.FileUtil
 import org.dromara.hutool.json.JSONUtil
 import org.slf4j.LoggerFactory
 import org.springframework.stereotype.Component
 import java.io.File
 
 @Component
-class RemoveControllerImpl(
+class UninstallControllerImpl(
   private val objectMapper: ObjectMapper,
   private val libraryService: LibraryService,
   private val lutrisGameMapper: LutrisGameMapper,
   private val lutrisRelGameToCategoriesMapper: LutrisRelGameToCategoriesMapper,
-) : RemoveController {
+) : UninstallController {
 
-  private val logger = LoggerFactory.getLogger(RemoveControllerImpl::class.java)
+  private val logger = LoggerFactory.getLogger(UninstallControllerImpl::class.java)
 
   override suspend fun removeAction(libraryPathList: List<File>, gsgmIdList: List<Long>): Int = coroutineScope {
     // gsgm
@@ -49,12 +47,6 @@ class RemoveControllerImpl(
       .list()
       .filterNotNull()
 
-    // remove gsgm
-    removeWrapperList.forEach {
-      GsgmPrinter.printlnWaitTask("Gsgm game deleting...")
-      FileUtil.del(it.gameFile)
-    }
-
     // remove lutris
     lutrisGameMapper.updateChain()
       .`in`(LutrisGame::id, removeLutrisGameList.map { it.id })
@@ -62,11 +54,6 @@ class RemoveControllerImpl(
     lutrisRelGameToCategoriesMapper.updateChain()
       .`in`(LutrisRelGameToCategories::gameId, gsgmIdList)
       .remove()
-
-    GsgmPrinter.printlnListTask(
-      heading = "The games successfully removed by the Gsgm library are:",
-      msgList = removeWrapperList.map { objectMapper.writeValueAsString(it).let { JSONUtil.formatJsonStr(it) } }
-    )
 
     GsgmPrinter.printlnListTask(
       heading = "Games successfully removed from the Lutris library are:",
