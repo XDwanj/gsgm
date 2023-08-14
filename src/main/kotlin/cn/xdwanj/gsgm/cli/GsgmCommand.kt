@@ -1,8 +1,6 @@
 package cn.xdwanj.gsgm.cli
 
 import cn.xdwanj.gsgm.cli.operate.*
-import cn.xdwanj.gsgm.service.LibraryService
-import com.fasterxml.jackson.databind.ObjectMapper
 import kotlinx.coroutines.runBlocking
 import org.springframework.beans.factory.config.ConfigurableBeanFactory.SCOPE_PROTOTYPE
 import org.springframework.context.annotation.Scope
@@ -23,8 +21,8 @@ import java.util.concurrent.Callable
     SearchOperate::class,
     ListOperate::class,
     InfoOperate::class,
-    // InstallOperate::class,
     InitOperate::class,
+    InstallOperate::class,
     UninstallOperate::class,
     CheckOperate::class,
     SyncOperate::class,
@@ -33,10 +31,7 @@ import java.util.concurrent.Callable
     // ManPageGenerator::class
   ],
 )
-class GsgmCommand(
-  private val libraryService: LibraryService,
-  private val objectMapper: ObjectMapper,
-) : Callable<Int> {
+class GsgmCommand : Callable<Int> {
 
   override fun call(): Int = runBlocking {
     // 检查是否启动了多个 Gsgm

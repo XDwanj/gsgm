@@ -1,6 +1,5 @@
 package cn.xdwanj.gsgm.cli.operate
 
-import kotlinx.coroutines.runBlocking
 import org.junit.jupiter.api.AfterEach
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
@@ -28,9 +27,16 @@ class UninstallOperateTest {
   }
 
   @Test
-  fun `gsgm remove -hV`(): Unit = runBlocking {
+  fun `gsgm uninstall -hV`() {
     CommandLine(uninstallOperate, iFactory).execute(
       "-hV"
+    )
+  }
+
+  @Test
+  fun `gsgm uninstall -l xxx`() {
+    CommandLine(uninstallOperate, iFactory).execute(
+      "-l", "/mnt/Frequent/HGame"
     )
   }
 

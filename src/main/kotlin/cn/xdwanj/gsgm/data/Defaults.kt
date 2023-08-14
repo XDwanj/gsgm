@@ -20,6 +20,7 @@ object Defaults {
   val defaultGsgmInfo
     get() = GsgmInfo(
       id = IdUtil.getSnowflakeNextId(),
+      initTime = DateTime()
     )
 
   val defaultGsgmSetting

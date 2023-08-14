@@ -12,7 +12,7 @@ object LutrisGlobalSettings {
   private val localPath = "${SystemUtil.getUserHomePath()}/.local/share/lutris"
 
   val pgaDbPath = "$localPath/pga.db"
-  val gameScriptPath = "$configPath/games".also { FileUtil.mkdir(it) }
+  val runScriptPath = "$configPath/games".also { FileUtil.mkdir(it) }
   val coverartPath = "$cachePath/coverart".also { FileUtil.mkdir(it) }
   val bannerPath = "$cachePath/banners".also { FileUtil.mkdir(it) }
   val iconPath = "${SystemUtil.getUserHomePath()}/.local/share/icons/hicolor/128x128/apps".also { FileUtil.mkdir(it) }

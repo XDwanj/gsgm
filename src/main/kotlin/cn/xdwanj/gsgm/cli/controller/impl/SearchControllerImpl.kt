@@ -40,7 +40,7 @@ class SearchControllerImpl(
 
     println("related games are as follows")
     searchList.forEach {
-      printlnGsgmGameDesc(it)
+      GsgmPrinter.printlnGsgmGameDesc(it)
     }
 
     0

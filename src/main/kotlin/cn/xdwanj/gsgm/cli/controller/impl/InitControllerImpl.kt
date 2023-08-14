@@ -55,7 +55,13 @@ class InitControllerImpl(
 
       val info = Defaults.defaultGsgmInfo.copy(id = IdUtil.getSnowflakeNextId())
 
-      printlnGsgmGameDesc(GsgmWrapper(gsgmInfo = info, gameFile = gameFile, gsgmSetting = GsgmSetting(platform = null)))
+      GsgmPrinter.printlnGsgmGameDesc(
+        GsgmWrapper(
+          gsgmInfo = info,
+          gameFile = gameFile,
+          gsgmSetting = GsgmSetting(platform = null)
+        )
+      )
 
       // 获取当前游戏平台
       val currentPlatform: Platform = platform ?: run {
@@ -185,7 +191,7 @@ class InitControllerImpl(
     val setting = Defaults.defaultGsgmSetting.copy(platform = platform!!)
 
     gameFileList.forEach {
-      printlnGsgmGameDesc(GsgmWrapper(gameFile = it, gsgmInfo = info, gsgmSetting = setting))
+      GsgmPrinter.printlnGsgmGameDesc(GsgmWrapper(gameFile = it, gsgmInfo = info, gsgmSetting = setting))
       val log = initGsgm(it, info, setting)
       println(colorize(log, yellowText))
     }

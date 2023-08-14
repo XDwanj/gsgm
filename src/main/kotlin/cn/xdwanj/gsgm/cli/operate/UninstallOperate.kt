@@ -36,8 +36,8 @@ class UninstallOperate(
 
   @Parameters(
     index = "0",
-    arity = "1..*",
-    description = ["Gsgm 游戏id"],
+    arity = "0..*",
+    description = ["Gsgm 游戏id, 如果不指定，则卸载整个 Gsgm 游戏库"],
     paramLabel = "<gsgm id>"
   )
   var gsgmIdList: List<Long> = emptyList()
@@ -46,7 +46,11 @@ class UninstallOperate(
     logger.info("libraryPath = {}", libraryPathList)
     logger.info("gsgmIdList = {}", gsgmIdList)
 
-    uninstallController.removeAction(libraryPathList, gsgmIdList)
+    if (gsgmIdList.isNotEmpty()) {
+      uninstallController.removeActionByGsgmId(libraryPathList, gsgmIdList)
+    } else {
+      uninstallController.removeActionByLibrary(libraryPathList)
+    }
   }
 }
 

@@ -33,4 +33,11 @@ class CheckOperateTest {
       "-hV"
     )
   }
+
+  @Test
+  fun `gsgm check --is-library xxx`() {
+    CommandLine(checkOperate, iFactory).execute(
+      "--is-library", "/mnt/Frequent/HGame"
+    )
+  }
 }

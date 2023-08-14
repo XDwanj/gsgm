@@ -2,6 +2,7 @@ package cn.xdwanj.gsgm.data.setting
 
 import com.fasterxml.jackson.annotation.JsonInclude
 import com.fasterxml.jackson.annotation.JsonInclude.Include
+import java.util.*
 
 @JsonInclude(Include.NON_EMPTY)
 data class GsgmInfo(
@@ -19,4 +20,9 @@ data class GsgmInfo(
    * 游戏介绍
    */
   var description: String? = null,
+
+  /**
+   * 初始化时间
+   */
+  var initTime: Date? = null,
 )

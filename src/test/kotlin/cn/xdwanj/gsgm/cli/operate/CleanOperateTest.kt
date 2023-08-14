@@ -33,4 +33,9 @@ class CleanOperateTest {
       "-hV"
     )
   }
+
+  @Test
+  fun `gsgm clean xxx`() {
+    CommandLine(cleanOperate, iFactory).execute()
+  }
 }

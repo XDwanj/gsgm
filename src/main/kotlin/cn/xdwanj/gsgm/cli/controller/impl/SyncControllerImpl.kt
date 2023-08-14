@@ -10,9 +10,10 @@ import cn.xdwanj.gsgm.data.entity.LutrisGame
 import cn.xdwanj.gsgm.data.entity.gsgmId
 import cn.xdwanj.gsgm.data.mapper.LutrisGameMapper
 import cn.xdwanj.gsgm.service.LibraryService
-import cn.xdwanj.gsgm.service.LutrisService
 import cn.xdwanj.gsgm.util.extensions.queryChain
-import kotlinx.coroutines.*
+import kotlinx.coroutines.async
+import kotlinx.coroutines.awaitAll
+import kotlinx.coroutines.coroutineScope
 import org.slf4j.LoggerFactory
 import org.springframework.stereotype.Component
 import java.io.File
@@ -21,54 +22,9 @@ import java.io.File
 class SyncControllerImpl(
   private val libraryService: LibraryService,
   private val lutrisGameMapper: LutrisGameMapper,
-  private val lutrisService: LutrisService,
 ) : SyncController {
 
   private val logger = LoggerFactory.getLogger(SyncControllerImpl::class.java)
-
-  override suspend fun syncActionGTL(libraryPathList: List<File>): Int = coroutineScope {
-    val gsgmWrapperList = libraryPathList
-      .map { libraryService.deepGameFile(it.absolutePath) }
-      .flatten()
-      .onEach { assertAll(it) } // check
-      .map { async { libraryService.getGsgmWrapperByFile(it) } }
-      .awaitAll()
-
-    gsgmWrapperList.map { wrapper ->
-      printlnGsgmGameDesc(wrapper)
-
-      try {
-        lutrisService.updateInstallLutrisGame(wrapper)
-        GsgmPrinter.printSingleTask("Sync succeeded")
-      } catch (e: Exception) {
-        GsgmPrinter.printSingleTask("Sync failed: $wrapper")
-      }
-    }
-
-    0
-  }
-
-
-  override suspend fun syncActionGTLByForce(libraryPathList: List<File>): Int = coroutineScope {
-    val gsgmWrapperList = libraryPathList
-      .map { libraryService.deepGameFile(it.absolutePath) }
-      .flatten()
-      .onEach { assertAll(it) } // check
-      .map { async { libraryService.getGsgmWrapperByFile(it) } }
-      .awaitAll()
-
-    gsgmWrapperList.map { wrapper ->
-      printlnGsgmGameDesc(wrapper)
-      try {
-        lutrisService.installLutrisGame(wrapper)
-        GsgmPrinter.printSingleTask("Force sync succeeded")
-      } catch (e: Exception) {
-        GsgmPrinter.printSingleTask("Force sync failed: $wrapper")
-      }
-    }
-
-    0
-  }
 
   override suspend fun syncActionLTG(libraryPathList: List<File>): Int = coroutineScope {
 
@@ -86,11 +42,11 @@ class SyncControllerImpl(
 
     lutrisGameMap.forEach { lutrisGame ->
       val wrapper = wrapperMap[lutrisGame.gsgmId]!!
-      val newWrapper = libraryService.getGsgmWrapperByLutrisGame(lutrisGame, wrapper.gameFile)
+      val newWrapper = libraryService.getGsgmWrapperByLutrisGame(lutrisGame)
       logger.info("lutrisGame=$lutrisGame")
       logger.info("wrapper=$wrapper")
       logger.info("newWrapper=$newWrapper")
-      printlnGsgmGameDesc(wrapper)
+      GsgmPrinter.printlnGsgmGameDesc(wrapper)
 
       // GsgmPrinter.printlnLevelTask("pgaDb syncing...")
       // lutrisService.upsertLutrisDB(newWrapper)
@@ -110,21 +66,8 @@ class SyncControllerImpl(
     0
   }
 
-  // ---------------------------------------- private function
-
-  private suspend fun assertAll(gameFile: File) = withContext(Dispatchers.IO) {
-
-    val resultState = listOf(
-      async { libraryService.checkGameInfo(gameFile) },
-      async { libraryService.checkGameSetting(gameFile) },
-      async { libraryService.checkGameHistory(gameFile) },
-      async { libraryService.checkGameResource(gameFile) },
-    ).awaitAll()
-      .reduce { first, second -> first + second }
-
-    if (resultState.level > 0) {
-      resultState.messageList.forEach(::println)
-      throw IllegalStateException("检查失败，游戏库格式错误: ${gameFile.absoluteFile}")
-    }
+  override suspend fun syncActionLTGByForce(libraryPathList: List<File>): Int = coroutineScope {
+    // todo: 这里要解耦和
+    syncActionLTG(libraryPathList)
   }
 }

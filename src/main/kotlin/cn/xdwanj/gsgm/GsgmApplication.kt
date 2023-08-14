@@ -34,5 +34,6 @@ class GsgmApplication(
 }
 
 fun main(args: Array<String>) {
+  // todo: lock gsgm
   runApplication<GsgmApplication>(*args)
 }

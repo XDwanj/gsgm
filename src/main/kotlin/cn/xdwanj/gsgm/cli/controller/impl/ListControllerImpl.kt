@@ -1,6 +1,7 @@
 package cn.xdwanj.gsgm.cli.controller.impl
 
 import cn.xdwanj.gsgm.cli.controller.ListController
+import cn.xdwanj.gsgm.cli.print.GsgmPrinter
 import cn.xdwanj.gsgm.cli.print.output.printlnGsgmGameDesc
 import cn.xdwanj.gsgm.data.mapper.LutrisGameMapper
 import cn.xdwanj.gsgm.service.LibraryService
@@ -27,12 +28,12 @@ class ListControllerImpl(
       .reversed()
       .forEach {
         val wrapper = try {
-          libraryService.getGsgmWrapperByLutrisGame(it, null)
+          libraryService.getGsgmWrapperByLutrisGame(it)
         } catch (e: Exception) {
           logger.error("", e)
           return@coroutineScope 1
         }
-        printlnGsgmGameDesc(wrapper)
+        GsgmPrinter.printlnGsgmGameDesc(wrapper)
       }
 
     0

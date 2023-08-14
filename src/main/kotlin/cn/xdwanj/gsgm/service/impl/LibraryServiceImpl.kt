@@ -5,7 +5,7 @@ import cn.xdwanj.gsgm.base.GsgmFileName.COVER_NAME
 import cn.xdwanj.gsgm.base.LutrisExtName
 import cn.xdwanj.gsgm.base.LutrisGlobalSettings
 import cn.xdwanj.gsgm.base.isGameDirectory
-import cn.xdwanj.gsgm.data.dto.CheckState
+import cn.xdwanj.gsgm.data.dto.CommonState
 import cn.xdwanj.gsgm.data.entity.LutrisGame
 import cn.xdwanj.gsgm.data.enum.LocaleCharSet
 import cn.xdwanj.gsgm.data.enum.Platform
@@ -24,6 +24,8 @@ import cn.xdwanj.kcolor.AttrTemplate.yellowText
 import com.fasterxml.jackson.databind.ObjectMapper
 import com.fasterxml.jackson.module.kotlin.readValue
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.async
+import kotlinx.coroutines.awaitAll
 import kotlinx.coroutines.withContext
 import org.dromara.hutool.core.date.DateTime
 import org.dromara.hutool.core.io.file.FileUtil
@@ -87,11 +89,12 @@ class LibraryServiceImpl(
     gsgmWrapper
   }
 
-  override suspend fun getGsgmWrapperByLutrisGame(lutrisGame: LutrisGame, gameFile: File?): GsgmWrapper = withContext(Dispatchers.IO) {
+  override suspend fun getGsgmWrapperByLutrisGame(lutrisGame: LutrisGame): GsgmWrapper = withContext(Dispatchers.IO) {
     val gsgmId = lutrisGame.slug!!.split("-").last().toLong()
-    val runScriptPath = "${LutrisGlobalSettings.gameScriptPath}/${lutrisGame.slug!!}.${LutrisExtName.SCRIPT_SUFFIX}"
+    val runScriptPath = "${LutrisGlobalSettings.runScriptPath}/${lutrisGame.slug!!}.${LutrisExtName.SCRIPT_SUFFIX}"
     val lastplayed = lutrisGame.lastplayed
     val playtime = lutrisGame.playtime
+    val gameFile = File(lutrisGame.directory!!)
 
     val yaml = FileUtil.readUtf8String(runScriptPath)
     val lutrisRunScript = YamlUtils.toBean<LutrisRunScript>(yaml)
@@ -106,11 +109,7 @@ class LibraryServiceImpl(
     val info = GsgmInfo(id = gsgmId)
 
     // setting
-    val executeLocation = if (gameFile != null) {
-      File(lutrisRunScript.game!!.exe!!).relationPath(gameFile)
-    } else {
-      null
-    }
+    val executeLocation = File(lutrisRunScript.game!!.exe!!).relationPath(gameFile)
     val setting = GsgmSetting(
       executeLocation = executeLocation,
       winePrefix = "${GsgmFileName.GSGM_DIR}/${File(lutrisRunScript.game?.prefix!!).name}",
@@ -138,25 +137,25 @@ class LibraryServiceImpl(
     )
   }
 
-  override suspend fun checkGameGsgmDir(gameFile: File): CheckState = withContext(Dispatchers.IO) {
+  override suspend fun checkGameGsgmDir(gameFile: File): CommonState<File> = withContext(Dispatchers.IO) {
     val exits = FileUtil.exists("${gameFile.absolutePath}/${GsgmFileName.GSGM_DIR}")
-    val checkState = CheckState(gameFile)
+    val commonState = CommonState(gameFile)
 
     if (!exits) {
-      checkState.level++
-      checkState.messageList += Ansi.colorize("${GsgmFileName.GSGM_DIR} 不存在", redText)
+      commonState.level++
+      commonState.messageList += Ansi.colorize("${GsgmFileName.GSGM_DIR} 不存在", redText)
     }
 
-    checkState
+    commonState
   }
 
-  override suspend fun checkGameInfo(gameFile: File): CheckState = withContext(Dispatchers.IO) {
-    val checkState = CheckState(gameFile)
+  override suspend fun checkGameInfo(gameFile: File): CommonState<File> = withContext(Dispatchers.IO) {
+    val commonState = CommonState(gameFile)
 
     // check file
     if (!FileUtil.exists("${gameFile.absolutePath}/${GsgmFileName.GSGM_DIR}/${GsgmFileName.INFO}")) {
-      checkState.messageList += Ansi.colorize("${GsgmFileName.INFO} 不存在", redText)
-      checkState.level += 1
+      commonState.messageList += Ansi.colorize("${GsgmFileName.INFO} 不存在", redText)
+      commonState.level += 1
     }
 
     // check json parse
@@ -167,25 +166,25 @@ class LibraryServiceImpl(
 
       if (info.id == null || info.id == 0L) {
         // info.id ?: run {
-        checkState.level++
-        checkState.messageList += Ansi.colorize("${GsgmFileName.INFO}: id 字段为空", redText)
+        commonState.level++
+        commonState.messageList += Ansi.colorize("${GsgmFileName.INFO}: id 字段为空", redText)
       }
 
     } catch (e: Exception) {
-      checkState.level++
-      checkState.messageList += Ansi.colorize("${GsgmFileName.INFO} 格式异常: ${e.message}", redText)
+      commonState.level++
+      commonState.messageList += Ansi.colorize("${GsgmFileName.INFO} 格式异常: ${e.message}", redText)
     }
 
-    checkState
+    commonState
   }
 
-  override suspend fun checkGameSetting(gameFile: File): CheckState = withContext(Dispatchers.IO) {
-    val checkState = CheckState(gameFile)
+  override suspend fun checkGameSetting(gameFile: File): CommonState<File> = withContext(Dispatchers.IO) {
+    val commonState = CommonState(gameFile)
 
     // check file
     if (!FileUtil.exists("${gameFile.absolutePath}/${GsgmFileName.GSGM_DIR}/${GsgmFileName.SETTING}")) {
-      checkState.messageList += Ansi.colorize("${GsgmFileName.SETTING} 不存在", redText)
-      checkState.level += 1
+      commonState.messageList += Ansi.colorize("${GsgmFileName.SETTING} 不存在", redText)
+      commonState.level += 1
     }
 
     // check json parse
@@ -195,39 +194,39 @@ class LibraryServiceImpl(
       )
 
       if (setting.executeLocation.isNullOrBlank()) {
-        checkState.level++
-        checkState.messageList += Ansi.colorize("${GsgmFileName.SETTING}: executeLocation 字段为空", redText)
+        commonState.level++
+        commonState.messageList += Ansi.colorize("${GsgmFileName.SETTING}: executeLocation 字段为空", redText)
       }
       if (setting.winePrefix.isNullOrBlank()) {
-        checkState.level++
-        checkState.messageList += Ansi.colorize("${GsgmFileName.SETTING}: winePrefix 字段为空", redText)
+        commonState.level++
+        commonState.messageList += Ansi.colorize("${GsgmFileName.SETTING}: winePrefix 字段为空", redText)
       }
       if (setting.platform == null) {
-        checkState.level++
-        checkState.messageList += Ansi.colorize("${GsgmFileName.SETTING}: platform 字段为空", redText)
+        commonState.level++
+        commonState.messageList += Ansi.colorize("${GsgmFileName.SETTING}: platform 字段为空", redText)
       }
       if (setting.localeCharSet == null) {
-        checkState.level++
-        checkState.messageList += Ansi.colorize("${GsgmFileName.SETTING}: localeCharSet 字段为空", redText)
+        commonState.level++
+        commonState.messageList += Ansi.colorize("${GsgmFileName.SETTING}: localeCharSet 字段为空", redText)
       }
     } catch (e: Exception) {
-      checkState.level++
-      checkState.messageList += Ansi.colorize("${GsgmFileName.INFO} 格式异常: ${e.message}", redText)
+      commonState.level++
+      commonState.messageList += Ansi.colorize("${GsgmFileName.INFO} 格式异常: ${e.message}", redText)
     }
 
-    checkState
+    commonState
   }
 
-  override suspend fun checkGameHistory(gameFile: File): CheckState = withContext(Dispatchers.IO) {
-    val checkState = CheckState(gameFile)
+  override suspend fun checkGameHistory(gameFile: File): CommonState<File> = withContext(Dispatchers.IO) {
+    val commonState = CommonState(gameFile)
     if (!FileUtil.exists("${gameFile.absolutePath}/${GsgmFileName.GSGM_DIR}/${GsgmFileName.HISTORY}")) {
-      checkState.messageList += Ansi.colorize("${GsgmFileName.HISTORY} 不存在", yellowText)
+      commonState.messageList += Ansi.colorize("${GsgmFileName.HISTORY} 不存在", yellowText)
     }
-    checkState
+    commonState
   }
 
-  override suspend fun checkGameResource(gameFile: File): CheckState = withContext(Dispatchers.IO) {
-    val checkState = CheckState(gameFile)
+  override suspend fun checkGameResource(gameFile: File): CommonState<File> = withContext(Dispatchers.IO) {
+    val commonState = CommonState(gameFile)
 
     val picturePath = "${gameFile.absolutePath}/${GsgmFileName.GSGM_DIR}/$COVER_NAME"
 
@@ -238,11 +237,11 @@ class LibraryServiceImpl(
       && FileUtil.exists("$picturePath.svg").not()
       && FileUtil.exists("$picturePath.gif").not()
     ) {
-      checkState.level += 1
-      checkState.messageList += Ansi.colorize("图片资源 $COVER_NAME.xxx 未找到", redText)
+      commonState.level += 1
+      commonState.messageList += Ansi.colorize("图片资源 $COVER_NAME.xxx 未找到", redText)
     }
 
-    checkState
+    commonState
   }
 
   override suspend fun installGsgmInfo(wrapper: GsgmWrapper): Boolean = withContext(Dispatchers.IO) {
@@ -314,6 +313,22 @@ class LibraryServiceImpl(
     logger.info("history = $history")
 
     true
+  }
+
+  override suspend fun assertAll(gameFile: File) = withContext(Dispatchers.IO) {
+
+    val resultState = listOf(
+      async { checkGameInfo(gameFile) },
+      async { checkGameSetting(gameFile) },
+      async { checkGameHistory(gameFile) },
+      async { checkGameResource(gameFile) },
+    ).awaitAll()
+      .reduce { first, second -> first + second }
+
+    if (resultState.level > 0) {
+      resultState.messageList.forEach(::println)
+      throw IllegalStateException("检查失败，游戏库格式错误: ${gameFile.absoluteFile}")
+    }
   }
 
   // ------------------------------------------- private function

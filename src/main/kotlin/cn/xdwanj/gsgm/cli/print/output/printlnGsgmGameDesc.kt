@@ -1,6 +1,7 @@
 package cn.xdwanj.gsgm.cli.print.output
 
 import cn.xdwanj.gsgm.base.GsgmFileName
+import cn.xdwanj.gsgm.cli.print.GsgmPrinter
 import cn.xdwanj.gsgm.data.setting.GsgmInfo
 import cn.xdwanj.gsgm.data.setting.GsgmSetting
 import cn.xdwanj.gsgm.data.setting.GsgmWrapper
@@ -13,7 +14,7 @@ import org.dromara.hutool.core.io.file.FileUtil
 import org.dromara.hutool.core.math.NumberUtil
 import java.math.BigDecimal
 
-fun printlnGsgmGameDesc(gsgmWrapper: GsgmWrapper): String {
+fun GsgmPrinter.printlnGsgmGameDesc(gsgmWrapper: GsgmWrapper): String {
   val objectMapper = ObjectMapper()
   val infoPath = "${gsgmWrapper.gameFile?.absolutePath}/${GsgmFileName.GSGM_DIR}/${GsgmFileName.INFO}"
   val settingPath = "${gsgmWrapper.gameFile?.absolutePath}/${GsgmFileName.GSGM_DIR}/${GsgmFileName.SETTING}"
@@ -46,38 +47,40 @@ fun printlnGsgmGameDesc(gsgmWrapper: GsgmWrapper): String {
   val id = info?.id
   val lastGameMoment = gsgmWrapper.gsgmHistory?.lastGameMoment
   val gameTime = gsgmWrapper.gsgmHistory?.gameTime
-  val playtime: String = if (gameTime == null) {
-    "null"
-  } else if (gameTime > BigDecimal("1")) {
-    val hour = gameTime.toInt()
-    val minute = NumberUtil.sub(gameTime, hour).let {
-      NumberUtil.mul(it, 60)
-    }
-    "$hour h ${minute.toInt()} min"
-  } else {
-    val minute = NumberUtil.mul(gameTime, 60)
-    "${minute.toInt()} min"
-  }
+  val playtime: String = gameTime.formatHour()
 
   val builder = StringBuilder().apply {
-    append(Ansi.colorize("$id", AttrTemplate.greenText))
-    append("/")
-    append(Ansi.colorize("${gsgmWrapper.gameFile?.name}", AttrTemplate.bold))
-    append(" ")
-    append(Ansi.colorize("${setting?.platform}", AttrTemplate.blueText))
-    append(" ")
-    append(
+    this.append(Ansi.colorize("$id", AttrTemplate.greenText))
+    this.append("/")
+    this.append(Ansi.colorize("${gsgmWrapper.gameFile?.name}", AttrTemplate.bold))
+    this.append(" ")
+    this.append(Ansi.colorize("${setting?.platform}", AttrTemplate.blueText))
+    this.append(" ")
+    this.append(
       Ansi.colorize(
         "(lastPlayed: ${DateUtil.formatDate(lastGameMoment)}, playTime: $playtime)",
         AttrTemplate.purpleText
       )
     )
-    append("\n")
-    append("    ")
-    append("'${gsgmWrapper.gameFile?.absolutePath}'")
+    this.append("\n")
+    this.append("    ")
+    this.append("'${gsgmWrapper.gameFile?.absolutePath}'")
   }
   val message = builder.toString()
   println(message)
 
   return message
+}
+
+fun BigDecimal?.formatHour(): String = if (this == null) {
+  "null"
+} else if (this > BigDecimal("1")) {
+  val hour = this.toInt()
+  val minute = NumberUtil.sub(this, hour).let {
+    NumberUtil.mul(it, 60)
+  }
+  "$hour h ${minute.toInt()} min"
+} else {
+  val minute = NumberUtil.mul(this, 60)
+  "${minute.toInt()} min"
 }

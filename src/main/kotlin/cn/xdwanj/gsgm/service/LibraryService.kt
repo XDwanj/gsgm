@@ -1,6 +1,6 @@
 package cn.xdwanj.gsgm.service
 
-import cn.xdwanj.gsgm.data.dto.CheckState
+import cn.xdwanj.gsgm.data.dto.CommonState
 import cn.xdwanj.gsgm.data.entity.LutrisGame
 import cn.xdwanj.gsgm.data.setting.GsgmWrapper
 import java.io.File
@@ -34,18 +34,20 @@ interface LibraryService {
    */
   suspend fun getGsgmWrapperByFile(gameFile: File): GsgmWrapper
 
-  suspend fun getGsgmWrapperByLutrisGame(lutrisGame: LutrisGame, gameFile: File?): GsgmWrapper
+  suspend fun getGsgmWrapperByLutrisGame(lutrisGame: LutrisGame): GsgmWrapper
 
-  suspend fun checkGameGsgmDir(gameFile: File): CheckState
+  suspend fun checkGameGsgmDir(gameFile: File): CommonState<File>
 
-  suspend fun checkGameInfo(gameFile: File): CheckState
+  suspend fun checkGameInfo(gameFile: File): CommonState<File>
 
-  suspend fun checkGameSetting(gameFile: File): CheckState
+  suspend fun checkGameSetting(gameFile: File): CommonState<File>
 
-  suspend fun checkGameHistory(gameFile: File): CheckState
+  suspend fun checkGameHistory(gameFile: File): CommonState<File>
 
-  suspend fun checkGameResource(gameFile: File): CheckState
+  suspend fun checkGameResource(gameFile: File): CommonState<File>
   suspend fun installGsgmInfo(wrapper: GsgmWrapper): Boolean
   suspend fun installGsgmSetting(wrapper: GsgmWrapper): Boolean
   suspend fun installGsgmHistory(wrapper: GsgmWrapper): Boolean
+
+  suspend fun assertAll(gameFile: File)
 }

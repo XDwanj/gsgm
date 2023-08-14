@@ -3,7 +3,7 @@ package cn.xdwanj.gsgm.cli.controller.impl
 import cn.xdwanj.gsgm.cli.controller.CheckController
 import cn.xdwanj.gsgm.cli.print.GsgmPrinter
 import cn.xdwanj.gsgm.cli.print.output.printlnListTask
-import cn.xdwanj.gsgm.data.dto.CheckState
+import cn.xdwanj.gsgm.data.dto.CommonState
 import cn.xdwanj.gsgm.service.LibraryService
 import cn.xdwanj.kcolor.Ansi
 import cn.xdwanj.kcolor.AttrTemplate
@@ -36,16 +36,13 @@ class CheckControllerImpl(
     // print
     checkResult.sortedBy { it.level }
       .forEach { state ->
-        val header = Ansi.colorize(state.gameFile.toString(), AttrTemplate.greenText)
+        val headerColor = if (state.level > 0) AttrTemplate.redText else AttrTemplate.greenText
+        val header = Ansi.colorize(state.data!!.absolutePath, headerColor)
         val msgList = state.messageList
         GsgmPrinter.printlnListTask(
           heading = header,
           msgList = msgList
         )
-        // println(header)
-        // state.messageList.forEach {
-        //   println("    $it")
-        // }
       }
 
     0
@@ -53,8 +50,8 @@ class CheckControllerImpl(
 
   private suspend fun checkAllState(
     gameFile: File,
-  ): CheckState = withContext(Dispatchers.Default) {
-    val checkState = CheckState(gameFile)
+  ): CommonState<File> = withContext(Dispatchers.Default) {
+    val commonState = CommonState(gameFile)
 
     listOf(
       async { libraryService.checkGameGsgmDir(gameFile) },
@@ -63,9 +60,9 @@ class CheckControllerImpl(
       async { libraryService.checkGameHistory(gameFile) },
       async { libraryService.checkGameResource(gameFile) },
     ).awaitAll()
-      .forEach { checkState += it }
+      .forEach { commonState += it }
 
-    checkState
+    commonState
   }
 
 
