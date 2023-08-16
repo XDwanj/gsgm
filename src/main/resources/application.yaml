@@ -2,7 +2,7 @@ spring:
   application:
     name: gsgm
   profiles:
-    active: dev
+    active: pro
   jackson:
     default-property-inclusion: non_empty
 
