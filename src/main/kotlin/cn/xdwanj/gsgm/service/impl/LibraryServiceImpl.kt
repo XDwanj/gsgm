@@ -17,8 +17,7 @@ import cn.xdwanj.gsgm.data.setting.GsgmWrapper
 import cn.xdwanj.gsgm.service.LibraryService
 import cn.xdwanj.gsgm.util.YamlUtils
 import cn.xdwanj.gsgm.util.extensions.relationPath
-import cn.xdwanj.kcolor.Ansi
-import cn.xdwanj.kcolor.AttrTemplate.italic
+import cn.xdwanj.kcolor.Ansi.colorize
 import cn.xdwanj.kcolor.AttrTemplate.redText
 import cn.xdwanj.kcolor.AttrTemplate.yellowText
 import com.fasterxml.jackson.databind.ObjectMapper
@@ -52,7 +51,7 @@ class LibraryServiceImpl(
     FileUtil.ls(path)
       .filter { it.name.substring(0..1) != "##" }
       .forEach { parentFile ->
-        walkGames(parentFile) {
+        walkGameLibrary(parentFile) {
           tmpList += it
         }
       }
@@ -143,7 +142,7 @@ class LibraryServiceImpl(
 
     if (!exits) {
       commonState.level++
-      commonState.messageList += Ansi.colorize("${GsgmFileName.GSGM_DIR} 不存在", redText)
+      commonState.messageList += colorize("${GsgmFileName.GSGM_DIR} 不存在", redText)
     }
 
     commonState
@@ -154,7 +153,7 @@ class LibraryServiceImpl(
 
     // check file
     if (!FileUtil.exists("${gameFile.absolutePath}/${GsgmFileName.GSGM_DIR}/${GsgmFileName.INFO}")) {
-      commonState.messageList += Ansi.colorize("${GsgmFileName.INFO} 不存在", redText)
+      commonState.messageList += colorize("${GsgmFileName.INFO} 不存在", redText)
       commonState.level += 1
     }
 
@@ -167,12 +166,12 @@ class LibraryServiceImpl(
       if (info.id == null || info.id == 0L) {
         // info.id ?: run {
         commonState.level++
-        commonState.messageList += Ansi.colorize("${GsgmFileName.INFO}: id 字段为空", redText)
+        commonState.messageList += colorize("${GsgmFileName.INFO}: id 字段为空", redText)
       }
 
     } catch (e: Exception) {
       commonState.level++
-      commonState.messageList += Ansi.colorize("${GsgmFileName.INFO} 格式异常: ${e.message}", redText)
+      commonState.messageList += colorize("${GsgmFileName.INFO} 格式异常: ${e.message}", redText)
     }
 
     commonState
@@ -183,7 +182,7 @@ class LibraryServiceImpl(
 
     // check file
     if (!FileUtil.exists("${gameFile.absolutePath}/${GsgmFileName.GSGM_DIR}/${GsgmFileName.SETTING}")) {
-      commonState.messageList += Ansi.colorize("${GsgmFileName.SETTING} 不存在", redText)
+      commonState.messageList += colorize("${GsgmFileName.SETTING} 不存在", redText)
       commonState.level += 1
     }
 
@@ -195,23 +194,23 @@ class LibraryServiceImpl(
 
       if (setting.executeLocation.isNullOrBlank()) {
         commonState.level++
-        commonState.messageList += Ansi.colorize("${GsgmFileName.SETTING}: executeLocation 字段为空", redText)
+        commonState.messageList += colorize("${GsgmFileName.SETTING}: executeLocation 字段为空", redText)
       }
       if (setting.winePrefix.isNullOrBlank()) {
         commonState.level++
-        commonState.messageList += Ansi.colorize("${GsgmFileName.SETTING}: winePrefix 字段为空", redText)
+        commonState.messageList += colorize("${GsgmFileName.SETTING}: winePrefix 字段为空", redText)
       }
       if (setting.platform == null) {
         commonState.level++
-        commonState.messageList += Ansi.colorize("${GsgmFileName.SETTING}: platform 字段为空", redText)
+        commonState.messageList += colorize("${GsgmFileName.SETTING}: platform 字段为空", redText)
       }
       if (setting.localeCharSet == null) {
         commonState.level++
-        commonState.messageList += Ansi.colorize("${GsgmFileName.SETTING}: localeCharSet 字段为空", redText)
+        commonState.messageList += colorize("${GsgmFileName.SETTING}: localeCharSet 字段为空", redText)
       }
     } catch (e: Exception) {
       commonState.level++
-      commonState.messageList += Ansi.colorize("${GsgmFileName.INFO} 格式异常: ${e.message}", redText)
+      commonState.messageList += colorize("${GsgmFileName.INFO} 格式异常: ${e.message}", redText)
     }
 
     commonState
@@ -220,7 +219,7 @@ class LibraryServiceImpl(
   override suspend fun checkGameHistory(gameFile: File): CommonState<File> = withContext(Dispatchers.IO) {
     val commonState = CommonState(gameFile)
     if (!FileUtil.exists("${gameFile.absolutePath}/${GsgmFileName.GSGM_DIR}/${GsgmFileName.HISTORY}")) {
-      commonState.messageList += Ansi.colorize("${GsgmFileName.HISTORY} 不存在", yellowText)
+      commonState.messageList += colorize("${GsgmFileName.HISTORY} 不存在", yellowText)
     }
     commonState
   }
@@ -238,81 +237,78 @@ class LibraryServiceImpl(
       && FileUtil.exists("$picturePath.gif").not()
     ) {
       commonState.level += 1
-      commonState.messageList += Ansi.colorize("图片资源 $COVER_NAME.xxx 未找到", redText)
+      commonState.messageList += colorize("图片资源 $COVER_NAME.xxx 未找到", redText)
     }
 
     commonState
   }
 
-  override suspend fun installGsgmInfo(wrapper: GsgmWrapper): Boolean = withContext(Dispatchers.IO) {
+  override suspend fun installGsgmInfo(wrapper: GsgmWrapper): CommonState<Unit> = withContext(Dispatchers.IO) {
     val gameFile = wrapper.gameFile!!
     val info = wrapper.gsgmInfo!!.copy(description = null)
     val infoPath = "${gameFile.absolutePath}/${GsgmFileName.GSGM_DIR}/${GsgmFileName.INFO}"
-    val oldInfo =
-      FileUtil.readUtf8String(infoPath)
-        .let { objectMapper.readValue<GsgmInfo>(it) }
-        .copy(description = null)
     val infoJson = objectMapper.writeValueAsString(info).let { JSONUtil.formatJsonStr(it) }
+    logger.info("info=$info")
+    val state = CommonState<Unit>()
 
-    logger.info("oldInfo = $oldInfo")
-    logger.info("info = $info")
-
-    if (oldInfo != info) {
+    try {
       FileUtil.writeUtf8String(infoJson, infoPath)
-    } else {
-      println(Ansi.colorize("    新 ${GsgmFileName.INFO} 配置与旧配置相同，跳过写入", italic))
+      val msg = colorize("${GsgmFileName.INFO} coverage successful")
+      state.messageList += msg
+    } catch (e: Exception) {
+      val log = "info.json overwriting failed"
+      logger.error(log, e)
+      state.messageList += colorize(log, redText)
+      state.level++
     }
 
-    true
+    state
   }
 
-  override suspend fun installGsgmSetting(wrapper: GsgmWrapper): Boolean = withContext(Dispatchers.IO) {
+  override suspend fun installGsgmSetting(wrapper: GsgmWrapper): CommonState<Unit> = withContext(Dispatchers.IO) {
     val gameFile = wrapper.gameFile!!
     val setting = wrapper.gsgmSetting!!
     val settingPath = "${gameFile.absolutePath}/${GsgmFileName.GSGM_DIR}/${GsgmFileName.SETTING}"
-    val oldSetting = FileUtil.readUtf8String(settingPath).let { objectMapper.readValue<GsgmSetting>(it) }
     val settingJson = objectMapper.writeValueAsString(setting).let { JSONUtil.formatJsonStr(it) }
+    val state = CommonState<Unit>()
 
-    logger.info("oldSetting = $oldSetting")
-    logger.info("setting = $setting")
+    logger.info("setting=$setting")
 
-    if (oldSetting != setting) {
+    try {
       FileUtil.writeUtf8String(settingJson, settingPath)
-    } else {
-      println(Ansi.colorize("    新 ${GsgmFileName.SETTING} 配置与旧配置相同，跳过写入", italic))
+      val msg = colorize("${GsgmFileName.SETTING} coverage successful")
+      state.messageList += msg
+    } catch (e: Exception) {
+      val log = "${GsgmFileName.SETTING} overwriting failed"
+      logger.error(log, e)
+      state.messageList += colorize(log, redText)
+      state.level++
     }
 
-    true
+    state
   }
 
-  override suspend fun installGsgmHistory(wrapper: GsgmWrapper): Boolean = withContext(Dispatchers.IO) {
+  override suspend fun installGsgmHistory(wrapper: GsgmWrapper): CommonState<Unit> = withContext(Dispatchers.IO) {
     val gameFile = wrapper.gameFile!!
     val history = wrapper.gsgmHistory
     val historyPath = "${gameFile.absolutePath}/${GsgmFileName.GSGM_DIR}/${GsgmFileName.HISTORY}"
-
-    if (history == null) {
-      println(Ansi.colorize("当前游戏没有游玩记录: $gameFile", yellowText))
-      return@withContext true
-    }
-
     val historyJson = objectMapper.writeValueAsString(history).let { JSONUtil.formatJsonStr(it) }
+    val state = CommonState<Unit>()
 
-    val oldHistory = if (FileUtil.exists(historyPath)) {
-      FileUtil.readUtf8String(historyPath).let { objectMapper.readValue<GsgmHistory>(it) }
-    } else {
-      null
-    }
+    logger.info("history=$history")
 
-    if (oldHistory != history) {
+    try {
       FileUtil.writeUtf8String(historyJson, historyPath)
-    } else {
-      println(Ansi.colorize("    新 ${GsgmFileName.HISTORY} 配置与旧配置相同，跳过写入", italic))
+      val msg = colorize("${GsgmFileName.HISTORY} coverage successful")
+      state.messageList += msg
+    } catch (e: Exception) {
+      val log = "${GsgmFileName.HISTORY} overwriting failed"
+      logger.error(log, e)
+      state.messageList += colorize(log, redText)
+      state.level++
     }
 
-    logger.info("oldHistory = $oldHistory")
-    logger.info("history = $history")
-
-    true
+    state
   }
 
   override suspend fun assertAll(gameFile: File) = withContext(Dispatchers.IO) {
@@ -339,12 +335,12 @@ class LibraryServiceImpl(
    * @param file
    * @param block
    */
-  private fun walkGames(file: File, block: (File) -> Unit) {
+  private fun walkGameLibrary(file: File, block: (File) -> Unit) {
     if (file.isGameDirectory()) {
       val subFiles = file.listFiles() ?: emptyArray()
       if (subFiles.isNotEmpty()) {
         for (tmp in subFiles) {
-          walkGames(tmp, block)
+          walkGameLibrary(tmp, block)
         }
       }
     } else {

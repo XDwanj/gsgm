@@ -56,7 +56,7 @@ class LutrisServiceImpl(
 
   override suspend fun installGameIcon(
     wrapper: GsgmWrapper,
-  ): CommonState<Any> = withContext(Dispatchers.IO) {
+  ): CommonState<Unit> = withContext(Dispatchers.IO) {
     val gsgmId = wrapper.gsgmInfo!!.id!!
     val destFile = File("$iconPath/${ICON_PREFIX}$gsgmId.${ICON_SUFFIX}")
     val gameFile = wrapper.gameFile!!
@@ -70,7 +70,7 @@ class LutrisServiceImpl(
     val newWidth = LutrisImageStandard.Icon.width
     val newHeight = LutrisImageStandard.Icon.height
 
-    val commonState = CommonState<Any>()
+    val commonState = CommonState<Unit>()
 
     try {
       ImgUtil.scale(pictureFile, destFile, newWidth, newHeight, Color(0, 0, 0, 0))
@@ -86,7 +86,7 @@ class LutrisServiceImpl(
     commonState
   }
 
-  override suspend fun installGameCoverart(wrapper: GsgmWrapper): CommonState<Any> = withContext(Dispatchers.IO) {
+  override suspend fun installGameCoverart(wrapper: GsgmWrapper): CommonState<Unit> = withContext(Dispatchers.IO) {
     val gsgmId = wrapper.gsgmInfo!!.id!!
     val destFile = File("$coverartPath/$COVERART_PREFIX$gsgmId.$COVERART_SUFFIX")
     val gameFile = wrapper.gameFile!!
@@ -99,7 +99,7 @@ class LutrisServiceImpl(
     // 264x352 ok
     // val originImg = ImgUtil.read(pictureFile)
 
-    val commonState = CommonState<Any>()
+    val commonState = CommonState<Unit>()
     try {
       // todo: 压缩图片
       FileUtil.copy(pictureFile, destFile, true)
@@ -115,7 +115,7 @@ class LutrisServiceImpl(
     commonState
   }
 
-  override suspend fun installGameBanner(wrapper: GsgmWrapper): CommonState<Any> = withContext(Dispatchers.IO) {
+  override suspend fun installGameBanner(wrapper: GsgmWrapper): CommonState<Unit> = withContext(Dispatchers.IO) {
     val gsgmId = wrapper.gsgmInfo!!.id!!
     val gameFile = wrapper.gameFile!!
     val destFile = File("$bannerPath/$BANNER_PREFIX$gsgmId.$BANNER_SUFFIX")
@@ -126,7 +126,7 @@ class LutrisServiceImpl(
     }
 
     // todo: 压缩图片
-    val commonState = CommonState<Any>()
+    val commonState = CommonState<Unit>()
     try {
       FileUtil.copy(pictureFile, destFile, true)
       val msg = "banner conversion installed successfully: ${destFile.absolutePath}"
@@ -179,7 +179,7 @@ class LutrisServiceImpl(
 
   override suspend fun insertLutrisDb(
     gsgmWrapper: GsgmWrapper,
-  ): CommonState<Any> = withContext(Dispatchers.IO) {
+  ): CommonState<Unit> = withContext(Dispatchers.IO) {
     if (gsgmWrapper.gsgmInfo == null) throw IllegalArgumentException("gameWrapper.gameInfo must not null")
     if (gsgmWrapper.gsgmSetting == null) throw IllegalArgumentException("gameWrapper.gameSetting must not null")
 
@@ -222,9 +222,9 @@ class LutrisServiceImpl(
   @Transactional
   override suspend fun installLutrisGame(
     gsgmWrapper: GsgmWrapper,
-  ): CommonState<Any> = withContext(Dispatchers.IO) {
+  ): CommonState<Unit> = withContext(Dispatchers.IO) {
 
-    val state = CommonState<Any>()
+    val state = CommonState<Unit>()
 
     listOf(
       async { insertLutrisDb(gsgmWrapper) },
@@ -241,8 +241,8 @@ class LutrisServiceImpl(
   @Transactional
   override suspend fun upsertLutrisGame(
     gsgmWrapper: GsgmWrapper,
-  ): CommonState<Any> = withContext(Dispatchers.IO) {
-    val state = CommonState<Any>()
+  ): CommonState<Unit> = withContext(Dispatchers.IO) {
+    val state = CommonState<Unit>()
 
     listOf(
       async { upsertLutrisDB(gsgmWrapper) },
@@ -259,14 +259,14 @@ class LutrisServiceImpl(
   @Transactional
   override suspend fun upsertLutrisDB(
     gsgmWrapper: GsgmWrapper,
-  ): CommonState<Any> = withContext(Dispatchers.IO) {
+  ): CommonState<Unit> = withContext(Dispatchers.IO) {
     val slug = SLUG_PREFIX + gsgmWrapper.gsgmInfo!!.id!!
     val lutrisGame = getLutrisGameByGsgmWrapper(gsgmWrapper)
     val exists = lutrisGameMapper.queryChain()
       .eq(LutrisGame::slug, slug)
       .exists()
 
-    val state = CommonState<Any>()
+    val state = CommonState<Unit>()
 
     if (exists) {
       // is existing
@@ -388,8 +388,8 @@ class LutrisServiceImpl(
     }
   }
 
-  override suspend fun removeLutrisGameBySlug(slug: String): CommonState<Any> = withContext(Dispatchers.IO) {
-    val state = CommonState<Any>()
+  override suspend fun removeLutrisGameBySlug(slug: String): CommonState<Unit> = withContext(Dispatchers.IO) {
+    val state = CommonState<Unit>()
 
     listOf(
       async { removeLutrisCoverartBySlug(slug) },
@@ -403,71 +403,71 @@ class LutrisServiceImpl(
     state
   }
 
-  override suspend fun removeLutrisCoverartBySlug(slug: String): CommonState<Any> = withContext(Dispatchers.IO) {
+  override suspend fun removeLutrisCoverartBySlug(slug: String): CommonState<Unit> = withContext(Dispatchers.IO) {
     val currentCoverartPath = "$coverartPath/$slug.$COVERART_SUFFIX"
 
     if (!FileUtil.exists(currentCoverartPath)) {
       val log = colorize("lutris coverart resource does not exist: $currentCoverartPath", yellowText)
-      return@withContext CommonState<Any>(messageList = mutableListOf(log))
+      return@withContext CommonState<Unit>(messageList = mutableListOf(log))
     }
 
     return@withContext try {
       FileUtil.del(currentCoverartPath)
       val log = colorize("lutris coverart resource deleted successfully: $currentCoverartPath")
-      CommonState<Any>(messageList = mutableListOf(log))
+      CommonState<Unit>(messageList = mutableListOf(log))
     } catch (e: Exception) {
       val log = "lutris coverart resource deletion failed: $currentCoverartPath"
       logger.error(log, e)
-      CommonState<Any>(level = 1, messageList = mutableListOf(colorize(log, redText)))
+      CommonState<Unit>(level = 1, messageList = mutableListOf(colorize(log, redText)))
     }
   }
 
-  override suspend fun removeLutrisBannerBySlug(slug: String): CommonState<Any> = withContext(Dispatchers.IO) {
+  override suspend fun removeLutrisBannerBySlug(slug: String): CommonState<Unit> = withContext(Dispatchers.IO) {
     val currentBannerPath = "$bannerPath/$slug.$BANNER_SUFFIX"
 
     if (!FileUtil.exists(currentBannerPath)) {
       val log = colorize("lutris banner resource does not exist: $currentBannerPath", yellowText)
-      return@withContext CommonState<Any>(messageList = mutableListOf(log))
+      return@withContext CommonState<Unit>(messageList = mutableListOf(log))
     }
 
     return@withContext try {
       FileUtil.del(currentBannerPath)
       val log = colorize("lutris banner resource deleted successfully: $currentBannerPath")
-      CommonState<Any>(messageList = mutableListOf(log))
+      CommonState<Unit>(messageList = mutableListOf(log))
     } catch (e: Exception) {
       val log = "lutris banner resource deletion failed: $currentBannerPath"
       logger.error(log, e)
-      CommonState<Any>(level = 1, messageList = mutableListOf(colorize(log, redText)))
+      CommonState<Unit>(level = 1, messageList = mutableListOf(colorize(log, redText)))
     }
   }
 
-  override suspend fun removeLutrisIconBySlug(slug: String): CommonState<Any> = withContext(Dispatchers.IO) {
+  override suspend fun removeLutrisIconBySlug(slug: String): CommonState<Unit> = withContext(Dispatchers.IO) {
     val currentIconPath = "$iconPath/lutris_$slug.$ICON_SUFFIX"
 
     if (!FileUtil.exists(currentIconPath)) {
       val log = colorize("lutris icon resource does not exist: $currentIconPath", yellowText)
-      return@withContext CommonState<Any>(messageList = mutableListOf(log))
+      return@withContext CommonState<Unit>(messageList = mutableListOf(log))
     }
 
     return@withContext try {
       FileUtil.del(currentIconPath)
       val log = colorize("lutris icon resource deleted successfully: $currentIconPath")
-      CommonState<Any>(messageList = mutableListOf(log))
+      CommonState<Unit>(messageList = mutableListOf(log))
     } catch (e: Exception) {
       val log = "lutris icon resource deletion failed: $currentIconPath"
       logger.error(log, e)
-      CommonState<Any>(level = 1, messageList = mutableListOf(colorize(log, redText)))
+      CommonState<Unit>(level = 1, messageList = mutableListOf(colorize(log, redText)))
     }
   }
 
-  override suspend fun removeLutrisDbBySlug(slug: String): CommonState<Any> = withContext(Dispatchers.IO) {
+  override suspend fun removeLutrisDbBySlug(slug: String): CommonState<Unit> = withContext(Dispatchers.IO) {
     val exist = lutrisGameMapper.queryChain()
       .eq(LutrisGame::slug, slug)
       .exists()
 
     if (!exist) {
       val log = colorize("database record does not exist: $slug", yellowText)
-      return@withContext CommonState<Any>(messageList = mutableListOf(log))
+      return@withContext CommonState<Unit>(messageList = mutableListOf(log))
     }
 
     return@withContext try {
@@ -482,35 +482,35 @@ class LutrisServiceImpl(
         .eq(LutrisGame::id, id)
         .remove()
       val log = colorize("database record deleted successfully: $slug")
-      CommonState<Any>(messageList = mutableListOf(log))
+      CommonState<Unit>(messageList = mutableListOf(log))
     } catch (e: Exception) {
       val log = "database record deletion failed: $slug"
       logger.error(log, e)
-      CommonState<Any>(level = 1, messageList = mutableListOf(colorize(log, redText)))
+      CommonState<Unit>(level = 1, messageList = mutableListOf(colorize(log, redText)))
     }
   }
 
-  override suspend fun removeLutrisRunScriptBySlug(slug: String): CommonState<Any> = withContext(Dispatchers.IO) {
+  override suspend fun removeLutrisRunScriptBySlug(slug: String): CommonState<Unit> = withContext(Dispatchers.IO) {
     val currentScriptPath = "$runScriptPath/$slug.$SCRIPT_SUFFIX"
     if (!FileUtil.exists(currentScriptPath)) {
       val log = colorize("run script does not exist: $currentScriptPath", yellowText)
-      return@withContext CommonState<Any>(messageList = mutableListOf(log))
+      return@withContext CommonState<Unit>(messageList = mutableListOf(log))
     }
 
     return@withContext try {
       FileUtil.del(currentScriptPath)
-      CommonState<Any>(messageList = mutableListOf(colorize("run script removed: $currentScriptPath")))
+      CommonState<Unit>(messageList = mutableListOf(colorize("run script removed: $currentScriptPath")))
     } catch (e: Exception) {
       val log = "failed to run the script to delete: $currentScriptPath"
       logger.error(log, e)
-      CommonState<Any>(level = 1, messageList = mutableListOf(colorize(log, redText)))
+      CommonState<Unit>(level = 1, messageList = mutableListOf(colorize(log, redText)))
     }
   }
 
-  override suspend fun upsertGameIcon(wrapper: GsgmWrapper): CommonState<Any> = withContext(Dispatchers.IO) {
+  override suspend fun upsertGameIcon(wrapper: GsgmWrapper): CommonState<Unit> = withContext(Dispatchers.IO) {
     val currentIconPath = "$iconPath/lutris_$SLUG_PREFIX${wrapper.gsgmInfo!!.id!!}.$ICON_SUFFIX"
 
-    val state = CommonState<Any>()
+    val state = CommonState<Unit>()
     if (FileUtil.exists(currentIconPath)) {
       state.messageList += colorize("icon resource already exists: $currentIconPath", yellowText)
     } else {
@@ -520,10 +520,10 @@ class LutrisServiceImpl(
     state
   }
 
-  override suspend fun upsertGameCoverart(wrapper: GsgmWrapper): CommonState<Any> = withContext(Dispatchers.IO) {
+  override suspend fun upsertGameCoverart(wrapper: GsgmWrapper): CommonState<Unit> = withContext(Dispatchers.IO) {
     val currentCoverPath = "$coverartPath/$SLUG_PREFIX${wrapper.gsgmInfo!!.id!!}.$COVERART_SUFFIX"
 
-    val state = CommonState<Any>()
+    val state = CommonState<Unit>()
     if (FileUtil.exists(currentCoverPath)) {
       state.messageList += colorize("coverart resource already exists: $currentCoverPath", yellowText)
     } else {
@@ -533,10 +533,10 @@ class LutrisServiceImpl(
     state
   }
 
-  override suspend fun upsertGameBanner(wrapper: GsgmWrapper): CommonState<Any> = withContext(Dispatchers.IO) {
+  override suspend fun upsertGameBanner(wrapper: GsgmWrapper): CommonState<Unit> = withContext(Dispatchers.IO) {
     val currentCoverPath = "$bannerPath/$SLUG_PREFIX${wrapper.gsgmInfo!!.id!!}.$BANNER_SUFFIX"
 
-    val state = CommonState<Any>()
+    val state = CommonState<Unit>()
     if (FileUtil.exists(currentCoverPath)) {
       state.messageList += colorize("banner resource already exists: $currentCoverPath", yellowText)
     } else {
@@ -545,11 +545,11 @@ class LutrisServiceImpl(
     state
   }
 
-  override suspend fun installRunScript(gsgmWrapper: GsgmWrapper): CommonState<Any> = withContext(Dispatchers.IO) {
+  override suspend fun installRunScript(gsgmWrapper: GsgmWrapper): CommonState<Unit> = withContext(Dispatchers.IO) {
     val scriptDest = "$runScriptPath/$SLUG_PREFIX${gsgmWrapper.gsgmInfo!!.id!!}.$SCRIPT_SUFFIX"
     val lutrisRunScript = getLutrisRunScript(gsgmWrapper)
 
-    val state = CommonState<Any>()
+    val state = CommonState<Unit>()
     try {
       val msg = colorize("the running script has been written successfully: $scriptDest")
       FileUtil.writeUtf8String(lutrisRunScript.toYaml(), scriptDest)
@@ -563,10 +563,10 @@ class LutrisServiceImpl(
     state
   }
 
-  override suspend fun upsertRunScript(gsgmWrapper: GsgmWrapper): CommonState<Any> = withContext(Dispatchers.IO) {
+  override suspend fun upsertRunScript(gsgmWrapper: GsgmWrapper): CommonState<Unit> = withContext(Dispatchers.IO) {
     val scriptDest = "$runScriptPath/$SLUG_PREFIX${gsgmWrapper.gsgmInfo!!.id!!}.$SCRIPT_SUFFIX"
 
-    val state = CommonState<Any>()
+    val state = CommonState<Unit>()
     if (FileUtil.exists(scriptDest)) {
       state.messageList += colorize("script already exists: $scriptDest", yellowText)
     } else {

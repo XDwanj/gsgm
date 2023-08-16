@@ -7,6 +7,7 @@ import org.springframework.beans.factory.config.ConfigurableBeanFactory.SCOPE_PR
 import org.springframework.context.annotation.Scope
 import org.springframework.stereotype.Component
 import picocli.CommandLine.Command
+import picocli.CommandLine.Parameters
 import java.util.concurrent.Callable
 
 @Scope(SCOPE_PROTOTYPE)
@@ -25,16 +26,16 @@ class ListOperate(
 
   private val logger = LoggerFactory.getLogger(ListOperate::class.java)
 
-  // @Option(
-  //   names = ["-s", "--sort"],
-  //   required = false,
-  //   description = ["排序方式，默认按照 ID 排序, 例: [asc/desc]:[排序字段]%n  id:asc%n  asc:name%n  lastplayed:asc"],
-  // )
-  // var sortRule: String = ""
+  @Parameters(
+    index = "0",
+    arity = "0..1",
+    description = ["游戏库位置"],
+  )
+  var keyword: String = ""
 
   override fun call(): Int = runBlocking {
+    logger.info("keyword=$keyword")
 
-    listController.listAction()
-
+    listController.listActionByKeyword(keyword)
   }
 }

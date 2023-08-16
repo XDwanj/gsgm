@@ -16,9 +16,9 @@ interface LutrisService {
    * @param wrapper
    * @return
    */
-  suspend fun installGameIcon(wrapper: GsgmWrapper): CommonState<Any>
+  suspend fun installGameIcon(wrapper: GsgmWrapper): CommonState<Unit>
 
-  suspend fun upsertGameIcon(wrapper: GsgmWrapper): CommonState<Any>
+  suspend fun upsertGameIcon(wrapper: GsgmWrapper): CommonState<Unit>
 
   /**
    * 读取普通图片，转换成符合 lutris 的 coverart(jpg) 并写入磁盘
@@ -26,9 +26,9 @@ interface LutrisService {
    * @param wrapper
    * @return
    */
-  suspend fun installGameCoverart(wrapper: GsgmWrapper): CommonState<Any>
+  suspend fun installGameCoverart(wrapper: GsgmWrapper): CommonState<Unit>
 
-  suspend fun upsertGameCoverart(wrapper: GsgmWrapper): CommonState<Any>
+  suspend fun upsertGameCoverart(wrapper: GsgmWrapper): CommonState<Unit>
 
   /**
    * 读取普通图片，转换成符合 lutris 的 banner(jpg)  并写入磁盘
@@ -36,17 +36,17 @@ interface LutrisService {
    * @param wrapper
    * @return
    */
-  suspend fun installGameBanner(wrapper: GsgmWrapper): CommonState<Any>
+  suspend fun installGameBanner(wrapper: GsgmWrapper): CommonState<Unit>
 
-  suspend fun upsertGameBanner(wrapper: GsgmWrapper): CommonState<Any>
+  suspend fun upsertGameBanner(wrapper: GsgmWrapper): CommonState<Unit>
 
-  suspend fun insertLutrisDb(gsgmWrapper: GsgmWrapper): CommonState<Any>
+  suspend fun insertLutrisDb(gsgmWrapper: GsgmWrapper): CommonState<Unit>
 
-  suspend fun upsertLutrisDB(gsgmWrapper: GsgmWrapper): CommonState<Any>
+  suspend fun upsertLutrisDB(gsgmWrapper: GsgmWrapper): CommonState<Unit>
 
-  suspend fun installRunScript(gsgmWrapper: GsgmWrapper): CommonState<Any>
+  suspend fun installRunScript(gsgmWrapper: GsgmWrapper): CommonState<Unit>
 
-  suspend fun upsertRunScript(gsgmWrapper: GsgmWrapper): CommonState<Any>
+  suspend fun upsertRunScript(gsgmWrapper: GsgmWrapper): CommonState<Unit>
 
   /**
    * 对安装单个游戏进行集成
@@ -54,9 +54,9 @@ interface LutrisService {
    * @param gsgmWrapper
    * @return lutris数据库实体 和 gameWrapper
    */
-  suspend fun installLutrisGame(gsgmWrapper: GsgmWrapper): CommonState<Any>
+  suspend fun installLutrisGame(gsgmWrapper: GsgmWrapper): CommonState<Unit>
 
-  suspend fun upsertLutrisGame(gsgmWrapper: GsgmWrapper): CommonState<Any>
+  suspend fun upsertLutrisGame(gsgmWrapper: GsgmWrapper): CommonState<Unit>
 
   // ------------------------------------------------------------- Converter
   fun getLutrisGameByGsgmWrapper(gsgmWrapper: GsgmWrapper): LutrisGame
@@ -122,7 +122,7 @@ interface LutrisService {
    * @param slug
    * @return
    */
-  suspend fun removeLutrisGameBySlug(slug: String): CommonState<Any>
+  suspend fun removeLutrisGameBySlug(slug: String): CommonState<Unit>
 
   /**
    * 删除 lutris coverart 资源
@@ -130,7 +130,7 @@ interface LutrisService {
    * @param slug
    * @return
    */
-  suspend fun removeLutrisCoverartBySlug(slug: String): CommonState<Any>
+  suspend fun removeLutrisCoverartBySlug(slug: String): CommonState<Unit>
 
   /**
    * 删除 lutris banner 资源
@@ -138,7 +138,7 @@ interface LutrisService {
    * @param slug
    * @return
    */
-  suspend fun removeLutrisBannerBySlug(slug: String): CommonState<Any>
+  suspend fun removeLutrisBannerBySlug(slug: String): CommonState<Unit>
 
   /**
    * 删除 lutris icon 资源
@@ -146,7 +146,7 @@ interface LutrisService {
    * @param slug
    * @return
    */
-  suspend fun removeLutrisIconBySlug(slug: String): CommonState<Any>
+  suspend fun removeLutrisIconBySlug(slug: String): CommonState<Unit>
 
   /**
    * 删除 lutris 数据库资源
@@ -154,7 +154,7 @@ interface LutrisService {
    * @param slug
    * @return
    */
-  suspend fun removeLutrisDbBySlug(slug: String): CommonState<Any>
+  suspend fun removeLutrisDbBySlug(slug: String): CommonState<Unit>
 
   /**
    * 删除 lutris 运行脚本资源
@@ -162,5 +162,5 @@ interface LutrisService {
    * @param slug
    * @return
    */
-  suspend fun removeLutrisRunScriptBySlug(slug: String): CommonState<Any>
+  suspend fun removeLutrisRunScriptBySlug(slug: String): CommonState<Unit>
 }

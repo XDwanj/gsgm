@@ -26,13 +26,6 @@ class SyncOperate(
 
   private val logger = LoggerFactory.getLogger(SyncOperate::class.java)
 
-  // @ArgGroup(
-  //   heading = "数据同步方向，默认 Gsgm => Lutris%n",
-  //   multiplicity = "0..1",
-  //   exclusive = true
-  // )
-  // var dataSyncDirection: DataSyncDirectionGroup? = null
-
   @Option(
     names = ["-f", "--force"],
     description = ["强制覆盖同步"],

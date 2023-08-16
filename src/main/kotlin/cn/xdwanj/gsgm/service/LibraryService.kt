@@ -45,9 +45,9 @@ interface LibraryService {
   suspend fun checkGameHistory(gameFile: File): CommonState<File>
 
   suspend fun checkGameResource(gameFile: File): CommonState<File>
-  suspend fun installGsgmInfo(wrapper: GsgmWrapper): Boolean
-  suspend fun installGsgmSetting(wrapper: GsgmWrapper): Boolean
-  suspend fun installGsgmHistory(wrapper: GsgmWrapper): Boolean
+  suspend fun installGsgmInfo(wrapper: GsgmWrapper): CommonState<Unit>
+  suspend fun installGsgmSetting(wrapper: GsgmWrapper): CommonState<Unit>
+  suspend fun installGsgmHistory(wrapper: GsgmWrapper): CommonState<Unit>
 
   suspend fun assertAll(gameFile: File)
 }
