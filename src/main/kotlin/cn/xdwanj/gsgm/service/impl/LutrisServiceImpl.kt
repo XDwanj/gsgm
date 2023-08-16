@@ -19,7 +19,6 @@ import cn.xdwanj.gsgm.config.FlexibleDataSource
 import cn.xdwanj.gsgm.data.dto.CommonState
 import cn.xdwanj.gsgm.data.entity.LutrisGame
 import cn.xdwanj.gsgm.data.entity.LutrisRelGameToCategories
-import cn.xdwanj.gsgm.data.enum.LutrisImageStandard
 import cn.xdwanj.gsgm.data.mapper.LutrisGameMapper
 import cn.xdwanj.gsgm.data.mapper.LutrisRelGameToCategoriesMapper
 import cn.xdwanj.gsgm.data.script.LutrisInstallScript
@@ -27,6 +26,7 @@ import cn.xdwanj.gsgm.data.script.LutrisRunScript
 import cn.xdwanj.gsgm.data.script.toYaml
 import cn.xdwanj.gsgm.data.setting.GsgmWrapper
 import cn.xdwanj.gsgm.service.LutrisService
+import cn.xdwanj.gsgm.service.PictureService
 import cn.xdwanj.gsgm.util.extensions.queryChain
 import cn.xdwanj.gsgm.util.extensions.updateChain
 import cn.xdwanj.kcolor.Ansi.colorize
@@ -38,11 +38,9 @@ import kotlinx.coroutines.awaitAll
 import kotlinx.coroutines.withContext
 import org.dromara.hutool.core.io.IORuntimeException
 import org.dromara.hutool.core.io.file.FileUtil
-import org.dromara.hutool.swing.img.ImgUtil
 import org.slf4j.LoggerFactory
 import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
-import java.awt.Color
 import java.io.File
 import java.math.BigDecimal
 
@@ -51,6 +49,7 @@ class LutrisServiceImpl(
   private val lutrisGameMapper: LutrisGameMapper,
   private val flexibleDataSource: FlexibleDataSource,
   private val lutrisRelGameToCategoriesMapper: LutrisRelGameToCategoriesMapper,
+  private val pictureService: PictureService,
 ) : LutrisService {
   private val logger = LoggerFactory.getLogger(LutrisServiceImpl::class.java)
 
@@ -67,13 +66,14 @@ class LutrisServiceImpl(
       ?: throw IllegalStateException("must have picture: $gameFile")
 
     // 不考虑变换，直接转128x128，多出来的部分填充透明，这样图片反而能够居中
-    val newWidth = LutrisImageStandard.Icon.width
-    val newHeight = LutrisImageStandard.Icon.height
+    // val newWidth = LutrisImageStandard.Icon.width
+    // val newHeight = LutrisImageStandard.Icon.height
 
     val commonState = CommonState<Unit>()
 
     try {
-      ImgUtil.scale(pictureFile, destFile, newWidth, newHeight, Color(0, 0, 0, 0))
+      // ImgUtil.scale(pictureFile, destFile, newWidth, newHeight, Color(0, 0, 0, 0))
+      pictureService.suppressLutrisIcon(pictureFile, destFile)
       val msg = "icon conversion installed successfully: ${destFile.absolutePath}"
       commonState.messageList += msg
     } catch (e: Exception) {
@@ -96,13 +96,11 @@ class LutrisServiceImpl(
       .first { COVER_NAME == it.nameWithoutExtension.lowercase() }
       ?: throw IllegalStateException("must have picture: $gameFile")
 
-    // 264x352 ok
-    // val originImg = ImgUtil.read(pictureFile)
-
     val commonState = CommonState<Unit>()
     try {
       // todo: 压缩图片
-      FileUtil.copy(pictureFile, destFile, true)
+      // FileUtil.copy(pictureFile, destFile, true)
+      pictureService.suppressLutrisCoverart(pictureFile, destFile)
       val msg = "cover conversion installed successfully: ${destFile.absolutePath}"
       commonState.messageList += msg
     } catch (e: Exception) {
@@ -128,7 +126,8 @@ class LutrisServiceImpl(
     // todo: 压缩图片
     val commonState = CommonState<Unit>()
     try {
-      FileUtil.copy(pictureFile, destFile, true)
+      // FileUtil.copy(pictureFile, destFile, true)
+      pictureService.suppressLutrisBanner(pictureFile, destFile)
       val msg = "banner conversion installed successfully: ${destFile.absolutePath}"
       commonState.messageList += msg
     } catch (e: Exception) {
@@ -527,7 +526,7 @@ class LutrisServiceImpl(
     if (FileUtil.exists(currentCoverPath)) {
       state.messageList += colorize("coverart resource already exists: $currentCoverPath", yellowText)
     } else {
-      state += installGameIcon(wrapper)
+      state += installGameCoverart(wrapper)
     }
 
     state
@@ -540,7 +539,7 @@ class LutrisServiceImpl(
     if (FileUtil.exists(currentCoverPath)) {
       state.messageList += colorize("banner resource already exists: $currentCoverPath", yellowText)
     } else {
-      state += installGameIcon(wrapper)
+      state += installGameBanner(wrapper)
     }
     state
   }

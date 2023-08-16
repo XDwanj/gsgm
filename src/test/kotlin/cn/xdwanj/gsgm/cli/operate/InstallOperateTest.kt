@@ -34,7 +34,7 @@ class InstallOperateTest {
     )
   }
 
-  @Disabled
+  // @Disabled
   @Test
   fun `gsgm install xxx`() {
     CommandLine(installOperate, iFactory).execute(

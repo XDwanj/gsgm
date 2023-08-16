@@ -18,7 +18,7 @@ class CleanControllerImpl(
 
     if (lutrisService.cleanLutrisDB()) {
       commandCode = 0
-      val message = Ansi.colorize("pga clean is success", AttrTemplate.greenText)
+      val message = Ansi.colorize("pga db clean is success", AttrTemplate.greenText)
       GsgmPrinter.printlnWaitTask(message)
     } else {
       val message = Ansi.colorize("pga clean is error", AttrTemplate.redText)

@@ -11,7 +11,8 @@ enum class LutrisImageStandard(val width: Int, val height: Int) {
    * 尺寸: 600x900 | 比例: 2:3
    *
    */
-  Coverart(600, 900),
+  // Coverart(600, 900),
+  Coverart(264, 352),
 
   /**
    * 尺寸: 184x69 | 比例: 8:3

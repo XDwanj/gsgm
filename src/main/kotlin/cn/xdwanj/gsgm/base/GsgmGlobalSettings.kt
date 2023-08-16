@@ -8,10 +8,11 @@ import org.dromara.hutool.core.util.SystemUtil
  */
 object GsgmGlobalSettings {
 
-  val localPath = "${SystemUtil.getUserHomePath()}/.local/share/gsgm".also { FileUtil.mkdir(it) }
-  val configPath = "${SystemUtil.getUserHomePath()}/.config/gsgm".also { FileUtil.mkdir(it) }
-  val cachePath = "${SystemUtil.getUserHomePath()}/.cache/gsgm".also { FileUtil.mkdir(it) }
+  private val localPath = "${SystemUtil.getUserHomePath()}/.local/share/gsgm".also { FileUtil.mkdir(it) }
+  private val configPath = "${SystemUtil.getUserHomePath()}/.config/gsgm".also { FileUtil.mkdir(it) }
+  private val cachePath = "${SystemUtil.getUserHomePath()}/.cache/gsgm".also { FileUtil.mkdir(it) }
 
+  val picTemp = "$cachePath/pic_temp".also { FileUtil.mkdir(it) }
   val dbPath = "$localPath/gsgm.db"
 }
 
