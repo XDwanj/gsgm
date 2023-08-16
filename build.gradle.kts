@@ -11,7 +11,7 @@ plugins {
 }
 
 group = "cn.xdwanj"
-version = "v1.0.2"
+version = "v1.0.3"
 
 java {
   sourceCompatibility = JavaVersion.VERSION_1_8
