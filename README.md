@@ -87,11 +87,98 @@ Commands:
   list                 已安装列表
   info                 查询具体游戏
   init                 游戏初始化
-  remove               删除游戏
+  install              安装游戏到 Lutris 中
+  uninstall            卸载游戏，但不删游戏文件
   check                检查游戏
-  sync                 同步数据
+  sync                 将 Lutris 数据同步到 Gsgm
   clean                清空 Lutris 游戏库
   generate-completion  Generate bash/zsh completion script for gsgm.
+```
+
+```shell
+Usage: gsgm search [-hV] -k=<keyword> <libraryPath>...
+查询
+      <libraryPath>...      游戏库位置
+  -k, --keyword=<keyword>   查询关键字
+  -h, --help                Show this help message and exit.
+  -V, --version             Print version information and exit.
+```
+
+```shell
+Usage: gsgm list [-hV] [<keyword>]
+已安装列表
+      [<keyword>]   游戏库位置
+  -h, --help        Show this help message and exit.
+  -V, --version     Print version information and exit.
+```
+
+```shell
+Usage: gsgm info [-hV] [-lp[=<libraryPath>...]]... <gsgmId>...
+查询具体游戏
+      <gsgmId>...   gsgm id: 一般保存到游戏的 .gsgm 文件夹中 info.json 文件中
+      -lp, --library-path[=<libraryPath>...]
+                    Gsgm 游戏库位置，为空则仅查 Lutris 数据库
+  -h, --help        Show this help message and exit.
+  -V, --version     Print version information and exit.
+```
+
+```shell
+Usage: gsgm init [-ihV] [--is-library] (-lp | -wp | -mi) <gameOrLibraryPath>...
+游戏初始化
+      <gameOrLibraryPath>...
+                            游戏路径
+      --is-library          是否是 Gsgm 游戏库
+  -i, --interactive-mode    交互模式初始化游戏数据
+  -h, --help                Show this help message and exit.
+  -V, --version             Print version information and exit.
+扫描的游戏类型
+      -lp, --linux-all      是否全是 Linux 游戏
+      -wp, --windows-all    是否全是 Windows 游戏
+      -mi, --mix, --mixed   混合游戏
+```
+
+```shell
+Usage: gsgm install [-fhV] <libraryPath>...
+安装游戏到 Lutris 中
+      <libraryPath>...   Gsgm 游戏库位置
+  -f, --force            强制覆盖同步
+  -h, --help             Show this help message and exit.
+  -V, --version          Print version information and exit.
+```
+
+```shell
+Usage: gsgm uninstall [-hV] [-l[=<libraryPathList>...]]... [<gsgm id>...]
+卸载游戏，但不删游戏文件
+      [<gsgm id>...]   Gsgm 游戏id, 如果不指定，则卸载整个 Gsgm 游戏库
+  -l, --library-path[=<libraryPathList>...]
+                       Gsgm 游戏库位置
+  -h, --help           Show this help message and exit.
+  -V, --version        Print version information and exit.
+```
+
+```shell
+Usage: gsgm check [-hV] [--is-library] <gamePath>...
+检查游戏
+      <gamePath>...   游戏路径
+      --is-library    是否是 Gsgm 游戏库
+  -h, --help          Show this help message and exit.
+  -V, --version       Print version information and exit.
+```
+
+```shell
+Usage: gsgm sync [-fhV] <libraryPath>...
+将 Lutris 数据同步到 Gsgm
+      <libraryPath>...   游戏库位置
+  -f, --force            强制覆盖同步
+  -h, --help             Show this help message and exit.
+  -V, --version          Print version information and exit.
+```
+
+```shell
+Usage: gsgm clean [-hV]
+清空 Lutris 游戏库
+  -h, --help      Show this help message and exit.
+  -V, --version   Print version information and exit.
 ```
 
 ## 鸣谢列表

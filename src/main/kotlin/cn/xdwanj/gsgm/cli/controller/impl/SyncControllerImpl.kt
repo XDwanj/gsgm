@@ -48,13 +48,13 @@ class SyncControllerImpl(
       }
 
       // setting
-      if (oldWrapper.gsgmInfo != newWrapper.gsgmInfo) {
+      if (oldWrapper.gsgmSetting != newWrapper.gsgmSetting) {
         flag = true
         state += libraryService.installGsgmSetting(newWrapper)
       }
 
       // history
-      if (oldWrapper.gsgmInfo != newWrapper.gsgmInfo) {
+      if (oldWrapper.gsgmHistory != newWrapper.gsgmHistory) {
         flag = true
         state += libraryService.installGsgmHistory(newWrapper)
       }

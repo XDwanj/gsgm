@@ -9,6 +9,7 @@ import picocli.CommandLine
 import picocli.CommandLine.IFactory
 import java.io.Serializable
 
+
 @SpringBootApplication
 class GsgmApplication(
   private val gsgmCommand: GsgmCommand,
@@ -36,4 +37,7 @@ class GsgmApplication(
 fun main(args: Array<String>) {
   // todo: lock gsgm
   runApplication<GsgmApplication>(*args)
+
+  // todo: 游戏分组可以等 [#4482](https://github.com/lutris/lutris/pull/4482) 提案成功
+  // todo: 清理缓存图片文件夹
 }
