@@ -6,7 +6,7 @@ logging:
     path: ./logs
   level:
     com.baomidou.mybatisplus: debug
-    cn.xdwanj.gsgm: debug
+    cn.xdwanj.gsgm: info
     root: info
 mybatis-plus:
   global-config:

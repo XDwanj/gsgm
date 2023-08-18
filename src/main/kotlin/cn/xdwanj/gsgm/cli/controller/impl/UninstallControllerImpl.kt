@@ -7,8 +7,7 @@ import cn.xdwanj.gsgm.cli.print.output.printlnGsgmGameDesc
 import cn.xdwanj.gsgm.cli.print.output.printlnListTask
 import cn.xdwanj.gsgm.service.LibraryService
 import cn.xdwanj.gsgm.service.LutrisService
-import kotlinx.coroutines.async
-import kotlinx.coroutines.awaitAll
+import cn.xdwanj.gsgm.util.extensions.toGsgmWrapperList
 import kotlinx.coroutines.coroutineScope
 import org.slf4j.LoggerFactory
 import org.springframework.stereotype.Component
@@ -24,10 +23,9 @@ class UninstallControllerImpl(
 
   override suspend fun removeActionByGsgmId(libraryPathList: List<File>, gsgmIdList: List<Long>): Int = coroutineScope {
     val removeWrapperList = libraryPathList
-      .map { libraryService.deepGameFile(it.absolutePath) }
+      .map { libraryService.deepGroupFile(it.absolutePath) }
       .flatten()
-      .map { async { libraryService.getGsgmWrapperByFile(it) } }
-      .awaitAll()
+      .toGsgmWrapperList()
       .filter { gsgmIdList.contains(it.gsgmInfo?.id) }
 
     removeWrapperList.forEach { wrapper ->
@@ -49,10 +47,9 @@ class UninstallControllerImpl(
   override suspend fun removeActionByLibrary(libraryPathList: List<File>): Int = coroutineScope {
     // gsgm
     val removeWrapperList = libraryPathList
-      .map { libraryService.deepGameFile(it.absolutePath) }
+      .map { libraryService.deepGroupFile(it.absolutePath) }
       .flatten()
-      .map { async { libraryService.getGsgmWrapperByFile(it) } }
-      .awaitAll()
+      .toGsgmWrapperList()
 
     removeWrapperList.forEach { wrapper ->
       val slug = "gsgm-${wrapper.gsgmInfo!!.id!!}"

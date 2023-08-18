@@ -1,6 +1,8 @@
 package cn.xdwanj.gsgm.service
 
+import cn.xdwanj.gsgm.base.LutrisConstant
 import cn.xdwanj.gsgm.data.dto.CommonState
+import cn.xdwanj.gsgm.data.dto.GameGroupDto
 import cn.xdwanj.gsgm.data.entity.LutrisGame
 import cn.xdwanj.gsgm.data.setting.GsgmWrapper
 import java.io.File
@@ -26,15 +28,22 @@ interface LibraryService {
    */
   suspend fun deepGameFile(path: String): List<File>
 
+  suspend fun deepGroupFile(path: String): List<GameGroupDto>
+
   /**
    * 通过具体游戏的配置，生成游戏信息实体
    *
    * @param gameFile
    * @return
    */
-  suspend fun getGsgmWrapperByFile(gameFile: File): GsgmWrapper
+  suspend fun getGsgmWrapperByFileAndGroupName(
+    gameFile: File,
+    groupName: String = LutrisConstant.DEFAULT_CATEGORIES_NAME,
+  ): GsgmWrapper
 
   suspend fun getGsgmWrapperByLutrisGame(lutrisGame: LutrisGame): GsgmWrapper
+
+  // --------------------------------------------------------------------------- check
 
   suspend fun checkGameGsgmDir(gameFile: File): CommonState<File>
 
@@ -45,9 +54,15 @@ interface LibraryService {
   suspend fun checkGameHistory(gameFile: File): CommonState<File>
 
   suspend fun checkGameResource(gameFile: File): CommonState<File>
+
+  // --------------------------------------------------------------------------- install
+
   suspend fun installGsgmInfo(wrapper: GsgmWrapper): CommonState<Unit>
   suspend fun installGsgmSetting(wrapper: GsgmWrapper): CommonState<Unit>
   suspend fun installGsgmHistory(wrapper: GsgmWrapper): CommonState<Unit>
 
+
+  // --------------------------------------------------------------------------- assert
   suspend fun assertAll(gameFile: File)
 }
+

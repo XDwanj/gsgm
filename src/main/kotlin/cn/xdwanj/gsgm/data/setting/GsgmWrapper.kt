@@ -1,11 +1,17 @@
 package cn.xdwanj.gsgm.data.setting
 
+import cn.xdwanj.gsgm.base.LutrisConstant
 import com.fasterxml.jackson.annotation.JsonInclude
 import com.fasterxml.jackson.annotation.JsonInclude.Include
 import java.io.File
 
 @JsonInclude(Include.NON_EMPTY)
 data class GsgmWrapper(
+
+  /**
+   * 分组名
+   */
+  var groupName: String = LutrisConstant.DEFAULT_CATEGORIES_NAME,
 
   /**
    * 游戏设置

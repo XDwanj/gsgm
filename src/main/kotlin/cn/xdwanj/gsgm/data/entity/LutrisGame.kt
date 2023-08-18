@@ -21,6 +21,11 @@ data class LutrisGame(
   var name: String? = null,
 
   /**
+   * 排序名？
+   */
+  var sortname: String? = null,
+
+  /**
    * 游戏的slug
    * not null
    */

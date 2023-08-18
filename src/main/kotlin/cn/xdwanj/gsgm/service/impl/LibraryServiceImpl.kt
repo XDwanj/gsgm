@@ -1,11 +1,9 @@
 package cn.xdwanj.gsgm.service.impl
 
-import cn.xdwanj.gsgm.base.GsgmFileName
+import cn.xdwanj.gsgm.base.*
 import cn.xdwanj.gsgm.base.GsgmFileName.COVER_NAME
-import cn.xdwanj.gsgm.base.LutrisExtName
-import cn.xdwanj.gsgm.base.LutrisGlobalSettings
-import cn.xdwanj.gsgm.base.isGameDirectory
 import cn.xdwanj.gsgm.data.dto.CommonState
+import cn.xdwanj.gsgm.data.dto.GameGroupDto
 import cn.xdwanj.gsgm.data.entity.LutrisGame
 import cn.xdwanj.gsgm.data.enum.LocaleCharSet
 import cn.xdwanj.gsgm.data.enum.Platform
@@ -49,17 +47,64 @@ class LibraryServiceImpl(
 
     val tmpList = mutableListOf<File>()
     FileUtil.ls(path)
-      .filter { it.name.substring(0..1) != "##" }
+      .filter { it.isDirectory }
+      .filter { it.isIgnoreDirectory().not() }
       .forEach { parentFile ->
-        walkGameLibrary(parentFile) {
-          tmpList += it
-        }
+        logger.debug("deepGameParent => {}", parentFile)
+        walkGameFolder(parentFile) { tmpList += it }
       }
 
     tmpList
   }
 
-  override suspend fun getGsgmWrapperByFile(gameFile: File): GsgmWrapper = withContext(Dispatchers.IO) {
+  override suspend fun deepGroupFile(path: String): List<GameGroupDto> = withContext(Dispatchers.IO) {
+    // 分组路径列表
+    val groupFileList = mutableListOf<File>()
+    FileUtil.ls(path)
+      .filter { it.isDirectory }
+      .filter { it.isIgnoreDirectory().not() }
+      .forEach { parentFile ->
+        logger.debug("deepGameGroupFile => {}", parentFile)
+        walkGroupFolder(parentFile) { groupFileList += it }
+      }
+
+    // 分组的游戏列表
+    val groupList = groupFileList.map {
+      async {
+        val gameFileList = deepGameFile(it.absolutePath)
+        val groupName = it.name.trim()
+        GameGroupDto(
+          groupName = groupName,
+          fileList = gameFileList.toMutableList()
+        )
+      }
+    }.awaitAll()
+      .toMutableList()
+
+    // 默认组游戏列表
+    val defaultGameFileList = mutableListOf<File>()
+    FileUtil.ls(path)
+      .filter { it.isDirectory }
+      .filter { it.isIgnoreDirectory().not() }
+      .filter { groupFileList.contains(it).not() }
+      .forEach {
+        walkGameFolder(it) { walkFolder ->
+          if (groupFileList.contains(walkFolder).not()) {
+            defaultGameFileList += walkFolder
+          }
+        }
+      }
+    val defaultGroupDto = GameGroupDto(fileList = defaultGameFileList)
+
+    groupList += defaultGroupDto
+
+    groupList
+  }
+
+  override suspend fun getGsgmWrapperByFileAndGroupName(
+    gameFile: File,
+    groupName: String,
+  ): GsgmWrapper = withContext(Dispatchers.IO) {
     val gsgmPath = gameFile.absolutePath + "/.gsgm"
 
     if (FileUtil.exists("$gsgmPath/${GsgmFileName.INFO}").not())
@@ -81,8 +126,10 @@ class LibraryServiceImpl(
     val gsgmWrapper = GsgmWrapper().also {
       it.gameFile = gameFile
       it.gsgmInfo = objectMapper.readValue<GsgmInfo>(FileUtil.readUtf8String("$gsgmPath/${GsgmFileName.INFO}"))
-      it.gsgmSetting = objectMapper.readValue<GsgmSetting>(FileUtil.readUtf8String("$gsgmPath/${GsgmFileName.SETTING}"))
+      it.gsgmSetting =
+        objectMapper.readValue<GsgmSetting>(FileUtil.readUtf8String("$gsgmPath/${GsgmFileName.SETTING}"))
       it.gsgmHistory = gsgmHistory
+      it.groupName = groupName
     }
 
     gsgmWrapper
@@ -332,19 +379,44 @@ class LibraryServiceImpl(
   /**
    * 这个方法只能放在第二层调用
    *
-   * @param file
+   * @param folder
    * @param block
    */
-  private fun walkGameLibrary(file: File, block: (File) -> Unit) {
-    if (file.isGameDirectory()) {
-      val subFiles = file.listFiles() ?: emptyArray()
+  private fun walkGameFolder(folder: File, block: (File) -> Unit) {
+    if (folder.isGameDirectory()) {
+      val subFiles = folder.listFiles() ?: emptyArray()
       if (subFiles.isNotEmpty()) {
-        for (tmp in subFiles) {
-          walkGameLibrary(tmp, block)
-        }
+        subFiles.filter { it.isDirectory }
+          .forEach { walkGameFolder(it, block) }
       }
     } else {
-      block(file)
+      block(folder)
     }
+  }
+
+  /**
+   * 这个方法只能放在第二层调用
+   *
+   * @param folder
+   * @param block
+   */
+  fun walkGroupFolder(folder: File, block: (File) -> Unit) {
+
+    if (folder.isGameDirectory()) {
+      // 检查是否存在 .is-group 文件
+      val isGroupFile = File(folder, GsgmFileName.IS_GROUP)
+      if (isGroupFile.exists()) {
+        // 如果存在，添加进 list
+        block(folder)
+      } else {
+        // 如果不存在，则是普通文件夹
+        folder.listFiles()
+          ?.filter { it.isDirectory }
+          ?.forEach { subFolder ->
+            walkGroupFolder(subFolder, block)
+          }
+      }
+    }
+
   }
 }

@@ -13,7 +13,7 @@ class GsgmCommandTest {
   private lateinit var gsgmCommand: GsgmCommand
 
   @Autowired
-  private lateinit var factory: CommandLine.IFactory
+  private lateinit var iFactory: CommandLine.IFactory
 
   @BeforeEach
   fun beforeEach() {
@@ -27,44 +27,51 @@ class GsgmCommandTest {
 
   @Test
   fun `gsgm -hV`() {
-    CommandLine(gsgmCommand, factory).execute(
+    CommandLine(gsgmCommand, iFactory).execute(
       "-hV"
     )
     println("----------------------------------------------------")
-    CommandLine(gsgmCommand, factory).execute(
+    CommandLine(gsgmCommand, iFactory).execute(
       "search", "--help"
     )
     println("----------------------------------------------------")
-    CommandLine(gsgmCommand, factory).execute(
+    CommandLine(gsgmCommand, iFactory).execute(
       "list", "--help"
     )
     println("----------------------------------------------------")
-    CommandLine(gsgmCommand, factory).execute(
+    CommandLine(gsgmCommand, iFactory).execute(
       "info", "--help"
     )
     println("----------------------------------------------------")
-    CommandLine(gsgmCommand, factory).execute(
+    CommandLine(gsgmCommand, iFactory).execute(
       "install", "--help"
     )
     println("----------------------------------------------------")
-    CommandLine(gsgmCommand, factory).execute(
+    CommandLine(gsgmCommand, iFactory).execute(
       "init", "--help"
     )
     println("----------------------------------------------------")
-    CommandLine(gsgmCommand, factory).execute(
+    CommandLine(gsgmCommand, iFactory).execute(
       "remove", "--help"
     )
     println("----------------------------------------------------")
-    CommandLine(gsgmCommand, factory).execute(
+    CommandLine(gsgmCommand, iFactory).execute(
       "check", "--help"
     )
     println("----------------------------------------------------")
-    CommandLine(gsgmCommand, factory).execute(
+    CommandLine(gsgmCommand, iFactory).execute(
       "sync", "--help"
     )
     println("----------------------------------------------------")
-    CommandLine(gsgmCommand, factory).execute(
+    CommandLine(gsgmCommand, iFactory).execute(
       "clean", "--help"
+    )
+  }
+
+  @Test
+  fun test() {
+    CommandLine(gsgmCommand, iFactory).execute(
+      "--spring.profiles.active=dev", "init", "-h"
     )
   }
 

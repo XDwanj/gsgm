@@ -47,6 +47,7 @@ class InstallOperate(
     if (isForce) {
       installController.installActionLibraryByForce(libraryPathList)
     } else {
+      // todo: 需要考虑已经不存在的游戏要删除
       installController.installActionByLibrary(libraryPathList)
     }
   }

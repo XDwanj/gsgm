@@ -7,6 +7,7 @@ import org.springframework.context.annotation.Scope
 import org.springframework.stereotype.Component
 import picocli.AutoComplete.GenerateCompletion
 import picocli.CommandLine.Command
+import picocli.CommandLine.Option
 import java.util.concurrent.Callable
 
 @Scope(SCOPE_PROTOTYPE)
@@ -32,6 +33,14 @@ import java.util.concurrent.Callable
   ],
 )
 class GsgmCommand : Callable<Int> {
+
+  @Option(
+    // names = ["--spring.profiles.active=dev"]
+    description = ["设置启动模式，可选项：[dev | pro]"],
+    hidden = true,
+    names = ["--spring.profiles.active"]
+  )
+  var active: String = "pro"
 
   override fun call(): Int = runBlocking {
     // 检查是否启动了多个 Gsgm

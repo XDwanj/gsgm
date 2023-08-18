@@ -26,6 +26,8 @@ object LutrisExtName {
 }
 
 object LutrisConstant {
+  const val DEFAULT_CATEGORIES_NAME = "\$default"
+
   /**
    * lutris slug 前缀
    */

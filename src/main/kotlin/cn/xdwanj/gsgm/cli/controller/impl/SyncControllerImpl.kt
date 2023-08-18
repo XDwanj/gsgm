@@ -12,9 +12,12 @@ import cn.xdwanj.gsgm.data.mapper.LutrisGameMapper
 import cn.xdwanj.gsgm.data.setting.GsgmWrapper
 import cn.xdwanj.gsgm.service.LibraryService
 import cn.xdwanj.gsgm.util.extensions.queryChain
+import cn.xdwanj.gsgm.util.extensions.toGsgmWrapperList
 import cn.xdwanj.kcolor.Ansi.colorize
 import cn.xdwanj.kcolor.AttrTemplate.greenText
-import kotlinx.coroutines.*
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.coroutineScope
+import kotlinx.coroutines.withContext
 import org.slf4j.LoggerFactory
 import org.springframework.stereotype.Component
 import java.io.File
@@ -81,9 +84,8 @@ class SyncControllerImpl(
     libraryPathList: List<File>,
   ): Pair<Map<Long, GsgmWrapper>, List<LutrisGame>> = withContext(Dispatchers.IO) {
     val wrapperMap = libraryPathList.map {
-      libraryService.deepGameFile(it.absolutePath)
-        .map { async { libraryService.getGsgmWrapperByFile(it) } }
-        .awaitAll()
+      libraryService.deepGroupFile(it.absolutePath)
+        .toGsgmWrapperList()
     }.flatten()
       .associateBy { it.gsgmInfo!!.id!! }
 

@@ -17,8 +17,10 @@ import cn.xdwanj.gsgm.base.LutrisGlobalSettings.iconPath
 import cn.xdwanj.gsgm.base.LutrisGlobalSettings.runScriptPath
 import cn.xdwanj.gsgm.config.FlexibleDataSource
 import cn.xdwanj.gsgm.data.dto.CommonState
+import cn.xdwanj.gsgm.data.entity.LutrisCategories
 import cn.xdwanj.gsgm.data.entity.LutrisGame
 import cn.xdwanj.gsgm.data.entity.LutrisRelGameToCategories
+import cn.xdwanj.gsgm.data.mapper.LutrisCategoriesMapper
 import cn.xdwanj.gsgm.data.mapper.LutrisGameMapper
 import cn.xdwanj.gsgm.data.mapper.LutrisRelGameToCategoriesMapper
 import cn.xdwanj.gsgm.data.script.LutrisInstallScript
@@ -36,8 +38,10 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.async
 import kotlinx.coroutines.awaitAll
 import kotlinx.coroutines.withContext
+import org.dromara.hutool.core.data.id.IdUtil
 import org.dromara.hutool.core.io.IORuntimeException
 import org.dromara.hutool.core.io.file.FileUtil
+import org.dromara.hutool.core.text.StrUtil
 import org.slf4j.LoggerFactory
 import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
@@ -47,6 +51,7 @@ import java.math.BigDecimal
 @Service
 class LutrisServiceImpl(
   private val lutrisGameMapper: LutrisGameMapper,
+  private val lutrisCategoriesMapper: LutrisCategoriesMapper,
   private val flexibleDataSource: FlexibleDataSource,
   private val lutrisRelGameToCategoriesMapper: LutrisRelGameToCategoriesMapper,
   private val pictureService: PictureService,
@@ -65,14 +70,10 @@ class LutrisServiceImpl(
       .firstOrNull { COVER_NAME == it.nameWithoutExtension.lowercase() }
       ?: throw IllegalStateException("must have picture: $gameFile")
 
-    // 不考虑变换，直接转128x128，多出来的部分填充透明，这样图片反而能够居中
-    // val newWidth = LutrisImageStandard.Icon.width
-    // val newHeight = LutrisImageStandard.Icon.height
-
     val commonState = CommonState<Unit>()
 
     try {
-      // ImgUtil.scale(pictureFile, destFile, newWidth, newHeight, Color(0, 0, 0, 0))
+      // 不考虑变换，直接转128x128，多出来的部分填充透明，这样图片反而能够居中
       pictureService.suppressLutrisIcon(pictureFile, destFile)
       val msg = "icon conversion installed successfully: ${destFile.absolutePath}"
       commonState.messageList += msg
@@ -98,8 +99,6 @@ class LutrisServiceImpl(
 
     val commonState = CommonState<Unit>()
     try {
-      // todo: 压缩图片
-      // FileUtil.copy(pictureFile, destFile, true)
       pictureService.suppressLutrisCoverart(pictureFile, destFile)
       val msg = "cover conversion installed successfully: ${destFile.absolutePath}"
       commonState.messageList += msg
@@ -123,10 +122,8 @@ class LutrisServiceImpl(
       COVER_NAME == it.nameWithoutExtension.lowercase()
     }
 
-    // todo: 压缩图片
     val commonState = CommonState<Unit>()
     try {
-      // FileUtil.copy(pictureFile, destFile, true)
       pictureService.suppressLutrisBanner(pictureFile, destFile)
       val msg = "banner conversion installed successfully: ${destFile.absolutePath}"
       commonState.messageList += msg
@@ -172,23 +169,44 @@ class LutrisServiceImpl(
       system = LutrisRunScript.SystemDetails(
         locale = gameSetting.localeCharSet!!.value
       ),
-      wine = null,
+      wine = null, // todo: wine 配置未保存
     )
   }
 
-  override suspend fun insertLutrisDb(
-    gsgmWrapper: GsgmWrapper,
-  ): CommonState<Unit> = withContext(Dispatchers.IO) {
-    if (gsgmWrapper.gsgmInfo == null) throw IllegalArgumentException("gameWrapper.gameInfo must not null")
-    if (gsgmWrapper.gsgmSetting == null) throw IllegalArgumentException("gameWrapper.gameSetting must not null")
-
-    val lutrisGame = getLutrisGameByGsgmWrapper(gsgmWrapper)
-
-    lutrisGameMapper.insert(lutrisGame)
-
-    val log = colorize("lutris DB successful installation")
-    CommonState(messageList = mutableListOf(log))
-  }
+  // override suspend fun insertLutrisDb(
+  //   gsgmWrapper: GsgmWrapper,
+  // ): CommonState<Unit> = withContext(Dispatchers.IO) {
+  //   if (gsgmWrapper.gsgmInfo == null) throw IllegalArgumentException("gameWrapper.gameInfo must not null")
+  //   if (gsgmWrapper.gsgmSetting == null) throw IllegalArgumentException("gameWrapper.gameSetting must not null")
+  //   val groupName = gsgmWrapper.groupName
+  //
+  //   val lutrisGame = getLutrisGameByGsgmWrapper(gsgmWrapper)
+  //
+  //   // games table
+  //   lutrisGameMapper.insert(lutrisGame)
+  //
+  //   // categories table
+  //   val categories = lutrisCategoriesMapper.queryChain()
+  //     .eq(LutrisCategories::name, groupName)
+  //     .one()
+  //   if (categories == null) {
+  //     lutrisCategoriesMapper.insert(LutrisCategories(id = null, name = groupName))
+  //   }
+  //
+  //   // rel table
+  //   val gameId = lutrisGame.id!!
+  //   val categoryId = categories.id!!
+  //   val relExits = lutrisRelGameToCategoriesMapper.queryChain()
+  //     .eq(LutrisRelGameToCategories::gameId, gameId)
+  //     .eq(LutrisRelGameToCategories::categoryId, categoryId)
+  //     .exists()
+  //   if (!relExits) {
+  //     lutrisRelGameToCategoriesMapper.insert(LutrisRelGameToCategories(gameId, categoryId))
+  //   }
+  //
+  //   val log = colorize("lutris DB successful installation")
+  //   CommonState(messageList = mutableListOf(log))
+  // }
 
   override fun getLutrisGameByGsgmWrapper(
     gsgmWrapper: GsgmWrapper,
@@ -199,7 +217,7 @@ class LutrisServiceImpl(
       ?: (System.currentTimeMillis() / 1000)
     val directory = gsgmWrapper.gameFile!!.absolutePath
     return LutrisGame(
-      id = null,
+      id = gsgmId,
       name = gsgmWrapper.gameFile!!.name,
       slug = SLUG_PREFIX + gsgmId,
       installerSlug = SLUG_PREFIX + gsgmId,
@@ -226,7 +244,7 @@ class LutrisServiceImpl(
     val state = CommonState<Unit>()
 
     listOf(
-      async { insertLutrisDb(gsgmWrapper) },
+      async { upsertLutrisDB(gsgmWrapper) },
       async { installRunScript(gsgmWrapper) },
       async { installGameCoverart(gsgmWrapper) },
       async { installGameBanner(gsgmWrapper) },
@@ -259,39 +277,51 @@ class LutrisServiceImpl(
   override suspend fun upsertLutrisDB(
     gsgmWrapper: GsgmWrapper,
   ): CommonState<Unit> = withContext(Dispatchers.IO) {
+
     val slug = SLUG_PREFIX + gsgmWrapper.gsgmInfo!!.id!!
     val lutrisGame = getLutrisGameByGsgmWrapper(gsgmWrapper)
-    val exists = lutrisGameMapper.queryChain()
-      .eq(LutrisGame::slug, slug)
-      .exists()
+    val groupName = gsgmWrapper.groupName.trim()
 
     val state = CommonState<Unit>()
 
-    if (exists) {
-      // is existing
-      try {
-        val log = colorize("the game is already installed, overwriting the database", yellowText)
-        lutrisGameMapper.updateChain()
-          .eq(LutrisGame::slug, slug)
-          .update(lutrisGame.copy(id = null, slug = null))
-        state.messageList += log
-      } catch (e: Exception) {
-        val log = "database overwrite failed"
-        logger.error(log, e)
-        state.messageList += colorize(log, redText)
-      }
+    // games table
+    val lutrisGameByDb = lutrisGameMapper.queryChain()
+      .eq(LutrisGame::slug, slug)
+      .one()
+    if (lutrisGameByDb == null) {
+      lutrisGameMapper.insert(lutrisGame)
+      state.messageList += colorize("the current game is not installed newly inserted")
     } else {
-      // no exist
-      try {
-        val log = colorize("the current game is not installed newly inserted")
-        lutrisGameMapper.insert(lutrisGame)
-        state.messageList += log
-      } catch (e: Exception) {
-        val log = "Database insert failed: $lutrisGame"
-        logger.error(log, e)
-        state.messageList += colorize(log, redText)
-      }
+      lutrisGameMapper.updateChain()
+        .eq(LutrisGame::id, lutrisGameByDb.id)
+        .update(lutrisGame.copy(id = null, slug = null))
+      state.messageList += colorize("the game is already installed, overwriting the database", yellowText)
     }
+
+    // categories table
+    var categories = lutrisCategoriesMapper.queryChain()
+      .eq(LutrisCategories::name, groupName)
+      .one()
+    if (categories == null) {
+      lutrisCategoriesMapper.insert(LutrisCategories(id = null, name = groupName))
+      categories = lutrisCategoriesMapper.queryChain()
+        .eq(LutrisCategories::name, groupName)
+        .one()
+      state.messageList += colorize("add new group: $groupName", yellowText)
+    }
+    state.messageList += colorize("currently grouped as: $groupName")
+
+    // relation table
+    val relExits = lutrisRelGameToCategoriesMapper.queryChain()
+      .eq(LutrisRelGameToCategories::gameId, lutrisGame.id)
+      .eq(LutrisRelGameToCategories::categoryId, categories.id)
+      .exists()
+    if (!relExits) {
+      lutrisRelGameToCategoriesMapper.insert(
+        LutrisRelGameToCategories(gameId = lutrisGame.id, categoryId = categories.id)
+      )
+    }
+    state.messageList += colorize("group association established: [$groupName: ${lutrisGame.name}]")
 
     state
   }
@@ -313,6 +343,25 @@ class LutrisServiceImpl(
     try {
       lutrisRelGameToCategoriesMapper.updateChain()
         .`in`(LutrisRelGameToCategories::gameId, idList)
+        .remove()
+    } catch (e: Exception) {
+      logger.error("", e)
+      return@withContext false
+    }
+
+    // remove categories table
+    try {
+      // val numLength = IdUtil.getSnowflakeNextId()
+      //   .toString()
+      //   .length
+      // val dividingLine = StrUtil.fillAfter("1", '0', numLength)
+      //   .toLong()
+
+      lutrisCategoriesMapper.updateChain()
+        // .ge(LutrisCategories::id, dividingLine)
+        .likeRight(LutrisCategories::name, "@")
+        .or()
+        .likeRight(LutrisCategories::name, "$")
         .remove()
     } catch (e: Exception) {
       logger.error("", e)

@@ -10,6 +10,7 @@ import cn.xdwanj.gsgm.data.mapper.LutrisGameMapper
 import cn.xdwanj.gsgm.data.setting.GsgmWrapper
 import cn.xdwanj.gsgm.service.LibraryService
 import cn.xdwanj.gsgm.util.extensions.queryChain
+import cn.xdwanj.gsgm.util.extensions.toGsgmWrapperList
 import cn.xdwanj.kcolor.Ansi
 import cn.xdwanj.kcolor.AttrTemplate.greenText
 import cn.xdwanj.kcolor.AttrTemplate.yellowText
@@ -35,9 +36,9 @@ class InfoControllerImpl(
 
     // 有效的 gsgm list
     val gsgmWrapperList: List<GsgmWrapper> =
-      libraryPathList?.map { libraryService.deepGameFile(it.absolutePath) }
+      libraryPathList?.map { libraryService.deepGroupFile(it.absolutePath) }
         ?.flatten()
-        ?.map { libraryService.getGsgmWrapperByFile(it) }
+        ?.toGsgmWrapperList()
         ?.filter { gsgmIdList.contains(it.gsgmInfo!!.id) }
         ?: emptyList()
 

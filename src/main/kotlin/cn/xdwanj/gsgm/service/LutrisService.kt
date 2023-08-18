@@ -40,8 +40,6 @@ interface LutrisService {
 
   suspend fun upsertGameBanner(wrapper: GsgmWrapper): CommonState<Unit>
 
-  suspend fun insertLutrisDb(gsgmWrapper: GsgmWrapper): CommonState<Unit>
-
   suspend fun upsertLutrisDB(gsgmWrapper: GsgmWrapper): CommonState<Unit>
 
   suspend fun installRunScript(gsgmWrapper: GsgmWrapper): CommonState<Unit>

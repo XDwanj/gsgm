@@ -22,4 +22,5 @@ object GsgmFileName {
   const val HISTORY = "history.json"
   const val GSGM_DIR = ".gsgm"
   const val COVER_NAME = "cover"
+  const val IS_GROUP = ".is-group"
 }

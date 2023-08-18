@@ -6,6 +6,7 @@ import cn.xdwanj.gsgm.cli.print.PrintLevel
 import cn.xdwanj.gsgm.cli.print.output.printlnGsgmGameDesc
 import cn.xdwanj.gsgm.cli.print.output.printlnLevelTask
 import cn.xdwanj.gsgm.service.LibraryService
+import cn.xdwanj.gsgm.util.extensions.toGsgmWrapperList
 import kotlinx.coroutines.async
 import kotlinx.coroutines.awaitAll
 import kotlinx.coroutines.coroutineScope
@@ -21,10 +22,9 @@ class SearchControllerImpl(
   private val logger = LoggerFactory.getLogger(SearchControllerImpl::class.java)
   override suspend fun searchAction(keyword: String, libraryPathList: List<File>): Int = coroutineScope {
     val wrapperList = libraryPathList
-      .map { libraryService.deepGameFile(it.absolutePath) }
+      .map { libraryService.deepGroupFile(it.absolutePath) }
       .flatten()
-      .map { async { libraryService.getGsgmWrapperByFile(it) } }
-      .awaitAll()
+      .toGsgmWrapperList()
 
     // search
     val searchList = wrapperList.filter { it.gameFile!!.name.contains(keyword) }
