@@ -39,7 +39,7 @@ class InitOperate(
   lateinit var gameTypeGroup: GameTypeGroup
 
   @Option(
-    names = ["--is-library"],
+    names = ["-lib", "--is-library"],
     required = false,
     description = ["是否是 Gsgm 游戏库"]
   )
@@ -48,7 +48,7 @@ class InitOperate(
   @Option(
     required = false,
     names = ["-i", "--interactive-mode"],
-    description = ["交互模式初始化游戏数据"]
+    description = ["交互模式初始化游戏数据"],
   )
   var activeInteractiveMode: Boolean = false
 
@@ -68,7 +68,7 @@ class InitOperate(
     logger.info("gameTypeGroup = {}", gameTypeGroup)
 
     if (activeInteractiveMode.not() && gameTypeGroup.isMixed) {
-      throw ParameterException(spec.commandLine(), "非交互模式必须确认游戏平台如：gsgm -i --mix /path/of/game")
+      throw ParameterException(spec.commandLine(), "Non-interactive mode must identify unique platforms such as：gsgm -i -wp /path/of/game")
     }
 
     if (activeInteractiveMode) {

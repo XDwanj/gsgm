@@ -1,6 +1,9 @@
-package cn.xdwanj.gsgm.data.setting
+package cn.xdwanj.gsgm.data.wrapper
 
 import cn.xdwanj.gsgm.base.LutrisConstant
+import cn.xdwanj.gsgm.data.setting.GsgmHistory
+import cn.xdwanj.gsgm.data.setting.GsgmInfo
+import cn.xdwanj.gsgm.data.setting.GsgmSetting
 import com.fasterxml.jackson.annotation.JsonInclude
 import com.fasterxml.jackson.annotation.JsonInclude.Include
 import java.io.File

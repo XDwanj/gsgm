@@ -24,7 +24,7 @@ class GsgmApplication(
 
     // exitCode = CommandLine(gsgmCommand, factory)
     //   .execute(
-    //     "init", "--is-library", "-i", "--windows-all",
+    //     "init", "-lib", "-mi",
     //     "/home/xdwanj/Downloads/Aria2Download/completed/test/res/library"
     //   )
   }
@@ -38,6 +38,5 @@ fun main(args: Array<String>) {
   // todo: lock gsgm
   runApplication<GsgmApplication>(*args)
 
-  // todo: 游戏分组可以等 [#4482](https://github.com/lutris/lutris/pull/4482) 提案成功
   // todo: 清理缓存图片文件夹
 }

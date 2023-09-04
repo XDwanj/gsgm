@@ -5,6 +5,7 @@ import cn.xdwanj.gsgm.cli.print.GsgmPrinter
 import cn.xdwanj.gsgm.cli.print.output.printlnListTask
 import cn.xdwanj.gsgm.data.dto.CommonState
 import cn.xdwanj.gsgm.service.LibraryService
+import cn.xdwanj.gsgm.util.extensions.asyncMap
 import cn.xdwanj.kcolor.Ansi
 import cn.xdwanj.kcolor.AttrTemplate
 import kotlinx.coroutines.*
@@ -22,15 +23,11 @@ class CheckControllerImpl(
   ): Int = coroutineScope {
     val checkResult = if (isLibrary) {
       gamePathList
-        .map { async { libraryService.deepGameFile(it.absolutePath) } }
-        .awaitAll()
+        .asyncMap { libraryService.deepGameFile(it.absolutePath) }
         .flatten()
-        .map { async { checkAllState(it) } }
-        .awaitAll()
+        .asyncMap { checkAllState(it) }
     } else {
-      gamePathList.map {
-        async { checkAllState(it) }
-      }.awaitAll()
+      gamePathList.asyncMap { checkAllState(it) }
     }
 
     // print

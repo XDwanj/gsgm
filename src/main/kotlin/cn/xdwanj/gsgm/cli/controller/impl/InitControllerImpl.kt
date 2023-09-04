@@ -12,7 +12,7 @@ import cn.xdwanj.gsgm.data.Defaults
 import cn.xdwanj.gsgm.data.enum.Platform
 import cn.xdwanj.gsgm.data.setting.GsgmInfo
 import cn.xdwanj.gsgm.data.setting.GsgmSetting
-import cn.xdwanj.gsgm.data.setting.GsgmWrapper
+import cn.xdwanj.gsgm.data.wrapper.GsgmWrapper
 import cn.xdwanj.gsgm.service.LibraryService
 import cn.xdwanj.gsgm.util.extensions.relationPath
 import cn.xdwanj.kcolor.Ansi.colorize

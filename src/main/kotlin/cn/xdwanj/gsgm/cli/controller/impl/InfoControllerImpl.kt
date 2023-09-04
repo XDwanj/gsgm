@@ -7,7 +7,7 @@ import cn.xdwanj.gsgm.cli.print.output.printlnLine
 import cn.xdwanj.gsgm.config.FlexibleDataSource
 import cn.xdwanj.gsgm.data.entity.LutrisGame
 import cn.xdwanj.gsgm.data.mapper.LutrisGameMapper
-import cn.xdwanj.gsgm.data.setting.GsgmWrapper
+import cn.xdwanj.gsgm.data.wrapper.GsgmWrapper
 import cn.xdwanj.gsgm.service.LibraryService
 import cn.xdwanj.gsgm.util.extensions.queryChain
 import cn.xdwanj.gsgm.util.extensions.toGsgmWrapperList

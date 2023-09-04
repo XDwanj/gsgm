@@ -1,7 +1,7 @@
 package cn.xdwanj.gsgm.util.extensions
 
 import cn.xdwanj.gsgm.data.dto.GameGroupDto
-import cn.xdwanj.gsgm.data.setting.GsgmWrapper
+import cn.xdwanj.gsgm.data.wrapper.GsgmWrapper
 import cn.xdwanj.gsgm.service.LibraryService
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.async
@@ -13,8 +13,9 @@ val libraryService: LibraryService = SpringUtil.getBean(LibraryService::class.ja
 
 suspend fun List<GameGroupDto>.toGsgmWrapperList(): List<GsgmWrapper> = withContext(Dispatchers.IO) {
   this@toGsgmWrapperList.map { group ->
-    group.fileList
-      .map { async { libraryService.getGsgmWrapperByFileAndGroupName(it, group.groupName) } }
+    group.fileList.map {
+      async { libraryService.getGsgmWrapperByFileAndGroupName(it, group.groupName) }
+    }
   }.flatten()
     .awaitAll()
 }

@@ -2,9 +2,12 @@ package cn.xdwanj.gsgm.cli.print.output
 
 import cn.xdwanj.gsgm.base.GsgmFileName
 import cn.xdwanj.gsgm.cli.print.GsgmPrinter
+import cn.xdwanj.gsgm.data.mapper.LutrisGameMapper
+import cn.xdwanj.gsgm.data.mapper.LutrisRelGameToCategoriesMapper
 import cn.xdwanj.gsgm.data.setting.GsgmInfo
 import cn.xdwanj.gsgm.data.setting.GsgmSetting
-import cn.xdwanj.gsgm.data.setting.GsgmWrapper
+import cn.xdwanj.gsgm.data.wrapper.GsgmWrapper
+import cn.xdwanj.gsgm.data.wrapper.LutrisWrapper
 import cn.xdwanj.kcolor.Ansi
 import cn.xdwanj.kcolor.AttrTemplate
 import com.fasterxml.jackson.databind.ObjectMapper
@@ -12,7 +15,11 @@ import com.fasterxml.jackson.module.kotlin.readValue
 import org.dromara.hutool.core.date.DateUtil
 import org.dromara.hutool.core.io.file.FileUtil
 import org.dromara.hutool.core.math.NumberUtil
+import org.dromara.hutool.extra.spring.SpringUtil
 import java.math.BigDecimal
+
+val lutrisGameMapper = SpringUtil.getBean(LutrisGameMapper::class.java)
+val lutrisRelGameToCategoriesMapper = SpringUtil.getBean(LutrisRelGameToCategoriesMapper::class.java)
 
 fun GsgmPrinter.printlnGsgmGameDesc(gsgmWrapper: GsgmWrapper): String {
   val objectMapper = ObjectMapper()
@@ -83,4 +90,8 @@ fun BigDecimal?.formatHour(): String = if (this == null) {
 } else {
   val minute = NumberUtil.mul(this, 60)
   "${minute.toInt()} min"
+}
+
+fun GsgmPrinter.printlnGsgmGameDesc(lutrisWrapper: LutrisWrapper) {
+  TODO("未实现")
 }

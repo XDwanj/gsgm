@@ -9,7 +9,7 @@ import cn.xdwanj.gsgm.data.dto.CommonState
 import cn.xdwanj.gsgm.data.entity.LutrisGame
 import cn.xdwanj.gsgm.data.entity.gsgmId
 import cn.xdwanj.gsgm.data.mapper.LutrisGameMapper
-import cn.xdwanj.gsgm.data.setting.GsgmWrapper
+import cn.xdwanj.gsgm.data.wrapper.GsgmWrapper
 import cn.xdwanj.gsgm.service.LibraryService
 import cn.xdwanj.gsgm.util.extensions.queryChain
 import cn.xdwanj.gsgm.util.extensions.toGsgmWrapperList

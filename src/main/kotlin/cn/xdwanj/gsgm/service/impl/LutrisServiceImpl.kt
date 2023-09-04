@@ -26,7 +26,7 @@ import cn.xdwanj.gsgm.data.mapper.LutrisRelGameToCategoriesMapper
 import cn.xdwanj.gsgm.data.script.LutrisInstallScript
 import cn.xdwanj.gsgm.data.script.LutrisRunScript
 import cn.xdwanj.gsgm.data.script.toYaml
-import cn.xdwanj.gsgm.data.setting.GsgmWrapper
+import cn.xdwanj.gsgm.data.wrapper.GsgmWrapper
 import cn.xdwanj.gsgm.service.LutrisService
 import cn.xdwanj.gsgm.service.PictureService
 import cn.xdwanj.gsgm.util.extensions.queryChain
@@ -38,10 +38,8 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.async
 import kotlinx.coroutines.awaitAll
 import kotlinx.coroutines.withContext
-import org.dromara.hutool.core.data.id.IdUtil
 import org.dromara.hutool.core.io.IORuntimeException
 import org.dromara.hutool.core.io.file.FileUtil
-import org.dromara.hutool.core.text.StrUtil
 import org.slf4j.LoggerFactory
 import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
@@ -351,14 +349,7 @@ class LutrisServiceImpl(
 
     // remove categories table
     try {
-      // val numLength = IdUtil.getSnowflakeNextId()
-      //   .toString()
-      //   .length
-      // val dividingLine = StrUtil.fillAfter("1", '0', numLength)
-      //   .toLong()
-
       lutrisCategoriesMapper.updateChain()
-        // .ge(LutrisCategories::id, dividingLine)
         .likeRight(LutrisCategories::name, "@")
         .or()
         .likeRight(LutrisCategories::name, "$")

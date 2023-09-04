@@ -15,7 +15,7 @@ import java.util.concurrent.Callable
 @Command(
   name = "check",
   mixinStandardHelpOptions = true,
-  description = ["检查游戏"],
+  description = ["检查游戏格式"],
   sortOptions = false,
   sortSynopsis = false,
   usageHelpAutoWidth = true,

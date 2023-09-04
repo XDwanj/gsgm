@@ -6,6 +6,7 @@ import cn.xdwanj.gsgm.cli.print.output.printlnGsgmGameDesc
 import cn.xdwanj.gsgm.cli.print.output.printlnListTask
 import cn.xdwanj.gsgm.service.LibraryService
 import cn.xdwanj.gsgm.service.LutrisService
+import cn.xdwanj.gsgm.util.extensions.asyncMap
 import cn.xdwanj.gsgm.util.extensions.toGsgmWrapperList
 import kotlinx.coroutines.coroutineScope
 import org.springframework.stereotype.Component
@@ -19,7 +20,7 @@ class InstallControllerImpl(
 
   override suspend fun installActionByLibrary(libraryPathList: List<File>): Int = coroutineScope {
     val installWrapperList = libraryPathList
-      .map { libraryService.deepGroupFile(it.absolutePath) }
+      .asyncMap { libraryService.deepGroupFile(it.absolutePath) }
       .flatten()
       .onEach { temp -> temp.fileList.forEach { libraryService.assertAll(it) } }
       .toGsgmWrapperList()
@@ -38,7 +39,7 @@ class InstallControllerImpl(
 
   override suspend fun installActionLibraryByForce(libraryPathList: List<File>): Int = coroutineScope {
     val installWrapperList = libraryPathList
-      .map { libraryService.deepGroupFile(it.absolutePath) }
+      .asyncMap { libraryService.deepGroupFile(it.absolutePath) }
       .flatten()
       .onEach { temp -> temp.fileList.forEach { libraryService.assertAll(it) } }
       .toGsgmWrapperList()

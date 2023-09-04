@@ -37,7 +37,7 @@ class ListOperateTest {
   @Test
   fun `gsgm list xxx`() {
     CommandLine(listOperate, iFactory).execute(
-      // "爱上火车"
+
     )
   }
 

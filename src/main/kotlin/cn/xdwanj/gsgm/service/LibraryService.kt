@@ -4,7 +4,8 @@ import cn.xdwanj.gsgm.base.LutrisConstant
 import cn.xdwanj.gsgm.data.dto.CommonState
 import cn.xdwanj.gsgm.data.dto.GameGroupDto
 import cn.xdwanj.gsgm.data.entity.LutrisGame
-import cn.xdwanj.gsgm.data.setting.GsgmWrapper
+import cn.xdwanj.gsgm.data.wrapper.GsgmWrapper
+
 import java.io.File
 
 /**

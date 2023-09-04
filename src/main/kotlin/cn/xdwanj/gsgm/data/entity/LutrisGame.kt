@@ -5,6 +5,7 @@ import com.baomidou.mybatisplus.annotation.IdType
 import com.baomidou.mybatisplus.annotation.TableId
 import com.baomidou.mybatisplus.annotation.TableName
 import java.math.BigDecimal
+import kotlin.system.measureTimeMillis
 
 @TableName("games")
 data class LutrisGame(
@@ -158,6 +159,3 @@ data class LutrisGame(
 val LutrisGame.gsgmId: Long
   get() = this.slug!!.removePrefix(LutrisConstant.SLUG_PREFIX)
     .toLong()
-
-
-

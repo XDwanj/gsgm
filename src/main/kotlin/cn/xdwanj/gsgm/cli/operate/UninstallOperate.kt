@@ -1,13 +1,14 @@
 package cn.xdwanj.gsgm.cli.operate
 
 import cn.xdwanj.gsgm.cli.controller.UninstallController
+import cn.xdwanj.gsgm.cli.group.UninstallMedium
 import kotlinx.coroutines.runBlocking
 import org.slf4j.LoggerFactory
 import org.springframework.beans.factory.config.ConfigurableBeanFactory.SCOPE_PROTOTYPE
 import org.springframework.context.annotation.Scope
 import org.springframework.stereotype.Component
-import picocli.CommandLine.*
-import java.io.File
+import picocli.CommandLine.ArgGroup
+import picocli.CommandLine.Command
 import java.util.concurrent.Callable
 
 @Scope(SCOPE_PROTOTYPE)
@@ -26,30 +27,36 @@ class UninstallOperate(
 
   private val logger = LoggerFactory.getLogger(UninstallOperate::class.java)
 
-  @Option(
-    names = ["-l", "--library-path"],
-    description = ["Gsgm 游戏库位置"],
-    arity = "0..*",
-    required = false,
-  )
-  var libraryPathList: List<File> = emptyList()
+  // @Option(
+  //   names = ["-lib", "--library-path"],
+  //   description = ["Gsgm 游戏库位置"],
+  //   arity = "0..*",
+  //   required = false,
+  // )
+  // var libraryPathList: List<File> = emptyList()
+  //
+  // @Parameters(
+  //   index = "0",
+  //   arity = "1..*",
+  //   description = ["Gsgm 游戏id, 如果不指定，则卸载整个 Gsgm 游戏库"],
+  //   paramLabel = "<gsgm id>"
+  // )
+  // var gsgmIdList: List<Long> = emptyList()
 
-  @Parameters(
-    index = "0",
-    arity = "0..*",
-    description = ["Gsgm 游戏id, 如果不指定，则卸载整个 Gsgm 游戏库"],
-    paramLabel = "<gsgm id>"
+  @ArgGroup(
+    heading = "卸载媒介%n",
+    exclusive = true,
+    multiplicity = "1",
   )
-  var gsgmIdList: List<Long> = emptyList()
+  lateinit var uninstallMedium: UninstallMedium
 
   override fun call(): Int = runBlocking {
-    logger.info("libraryPath = {}", libraryPathList)
-    logger.info("gsgmIdList = {}", gsgmIdList)
+    logger.info("uninstallMedium = {}", uninstallMedium)
 
-    if (gsgmIdList.isNotEmpty()) {
-      uninstallController.removeActionByGsgmId(libraryPathList, gsgmIdList)
+    if (uninstallMedium.gsgmIdList.isNotEmpty()) {
+      uninstallController.uninstallActionByGsgmIDList(uninstallMedium.gsgmIdList)
     } else {
-      uninstallController.removeActionByLibrary(libraryPathList)
+      uninstallController.uninstallActionByLibraryList(uninstallMedium.libraryPath)
     }
   }
 }

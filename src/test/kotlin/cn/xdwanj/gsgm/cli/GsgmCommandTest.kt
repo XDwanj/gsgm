@@ -52,7 +52,7 @@ class GsgmCommandTest {
     )
     println("----------------------------------------------------")
     CommandLine(gsgmCommand, iFactory).execute(
-      "remove", "--help"
+      "uninstall", "--help"
     )
     println("----------------------------------------------------")
     CommandLine(gsgmCommand, iFactory).execute(

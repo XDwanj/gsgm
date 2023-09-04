@@ -4,7 +4,7 @@ import cn.xdwanj.gsgm.data.dto.CommonState
 import cn.xdwanj.gsgm.data.entity.LutrisGame
 import cn.xdwanj.gsgm.data.script.LutrisInstallScript
 import cn.xdwanj.gsgm.data.script.LutrisRunScript
-import cn.xdwanj.gsgm.data.setting.GsgmWrapper
+import cn.xdwanj.gsgm.data.wrapper.GsgmWrapper
 
 interface LutrisService {
 

@@ -11,7 +11,7 @@ import cn.xdwanj.gsgm.data.script.LutrisRunScript
 import cn.xdwanj.gsgm.data.setting.GsgmHistory
 import cn.xdwanj.gsgm.data.setting.GsgmInfo
 import cn.xdwanj.gsgm.data.setting.GsgmSetting
-import cn.xdwanj.gsgm.data.setting.GsgmWrapper
+import cn.xdwanj.gsgm.data.wrapper.GsgmWrapper
 import cn.xdwanj.gsgm.service.LibraryService
 import cn.xdwanj.gsgm.util.YamlUtils
 import cn.xdwanj.gsgm.util.extensions.relationPath
@@ -61,6 +61,7 @@ class LibraryServiceImpl(
     // 分组路径列表
     val groupFileList = mutableListOf<File>()
     FileUtil.ls(path)
+      .asSequence()
       .filter { it.isDirectory }
       .filter { it.isIgnoreDirectory().not() }
       .forEach { parentFile ->
