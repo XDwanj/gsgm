@@ -49,7 +49,7 @@ dependencies {
   // implementation(platform("org.springframework.boot:spring-boot-dependencies:$springbootVersion"))
   implementation("org.springframework.boot:spring-boot-starter")
   implementation("org.springframework.boot:spring-boot-starter-aop")
-  implementation("org.springframework.boot:spring-boot-starter-validation")
+  // implementation("org.springframework.boot:spring-boot-starter-validation")
 
   // kotlin
   implementation("org.jetbrains.kotlin:kotlin-reflect")

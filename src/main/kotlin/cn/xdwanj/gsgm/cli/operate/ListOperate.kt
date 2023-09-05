@@ -29,7 +29,7 @@ class ListOperate(
   @Parameters(
     index = "0",
     arity = "0..1",
-    description = ["游戏库位置"],
+    description = ["查询关键字"],
   )
   var keyword: String = ""
 

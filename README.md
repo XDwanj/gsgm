@@ -68,7 +68,7 @@ setting.json
   "executeLocation": "PureStation.exe", // 游戏启动文件，路径相对于游戏根目录
   "winePrefix": ".gsgm/winePrefix", // wineprefix 路径，相对于游戏根目录，默认为 `.gsgm/winePrefix`
   "localeCharSet": "zh_CN.UTF-8", // 字符集编码，默认 zh_CN.UTF-8
-  "platform": "Windows" // 游戏平台，默认 Windows
+  "platform": "Windows" // 游戏平台，默认 Windows，可选值：[Windows | Linux]
 }
 ```
 
@@ -76,7 +76,7 @@ history.json
 
 ```json5
 {
-    "lastGameMoment": 1692364512968, // 上次游玩时间的时间戳
+    "lastGameMoment": 1692364512968, // 上次游玩时间的时间戳(毫秒值)
     "gameTime": 1 // 总游玩时间，小数形式，单位是小时
 }
 ```

@@ -5,6 +5,7 @@ import cn.xdwanj.gsgm.base.GsgmFileName.COVER_NAME
 import cn.xdwanj.gsgm.data.dto.CommonState
 import cn.xdwanj.gsgm.data.dto.GameGroupDto
 import cn.xdwanj.gsgm.data.entity.LutrisGame
+import cn.xdwanj.gsgm.data.entity.gsgmId
 import cn.xdwanj.gsgm.data.enum.LocaleCharSet
 import cn.xdwanj.gsgm.data.enum.Platform
 import cn.xdwanj.gsgm.data.script.LutrisRunScript
@@ -137,7 +138,8 @@ class LibraryServiceImpl(
   }
 
   override suspend fun getGsgmWrapperByLutrisGame(lutrisGame: LutrisGame): GsgmWrapper = withContext(Dispatchers.IO) {
-    val gsgmId = lutrisGame.slug!!.split("-").last().toLong()
+    // val gsgmId = lutrisGame.slug!!.split("-").last().toLong()
+    val gsgmId = lutrisGame.gsgmId
     val runScriptPath = "${LutrisGlobalSettings.runScriptPath}/${lutrisGame.slug!!}.${LutrisExtName.SCRIPT_SUFFIX}"
     val lastplayed = lutrisGame.lastplayed
     val playtime = lutrisGame.playtime

@@ -1,8 +1,10 @@
 package cn.xdwanj.gsgm.cli.controller.impl
 
+import cn.xdwanj.gsgm.base.LutrisConstant
 import cn.xdwanj.gsgm.cli.controller.ListController
 import cn.xdwanj.gsgm.cli.print.GsgmPrinter
 import cn.xdwanj.gsgm.cli.print.output.printlnGsgmGameDesc
+import cn.xdwanj.gsgm.data.entity.LutrisGame
 import cn.xdwanj.gsgm.data.mapper.LutrisGameMapper
 import cn.xdwanj.gsgm.service.LibraryService
 import cn.xdwanj.gsgm.util.extensions.queryChain
@@ -19,7 +21,9 @@ class ListControllerImpl(
   private val logger = LoggerFactory.getLogger(ListControllerImpl::class.java)
 
   override suspend fun listActionByKeyword(keyword: String): Int = coroutineScope {
-    val lutrisGameList = lutrisGameMapper.queryChain().list()
+    val lutrisGameList = lutrisGameMapper.queryChain()
+      .likeRight(LutrisGame::slug, LutrisConstant.SLUG_PREFIX)
+      .list()
 
     lutrisGameList.let {
       if (keyword.isNotBlank()) {

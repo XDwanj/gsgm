@@ -16,13 +16,15 @@ import org.dromara.hutool.core.date.DateUtil
 import org.dromara.hutool.core.io.file.FileUtil
 import org.dromara.hutool.core.math.NumberUtil
 import org.dromara.hutool.extra.spring.SpringUtil
+import org.springframework.util.MimeTypeUtils
 import java.math.BigDecimal
 
-val lutrisGameMapper = SpringUtil.getBean(LutrisGameMapper::class.java)
-val lutrisRelGameToCategoriesMapper = SpringUtil.getBean(LutrisRelGameToCategoriesMapper::class.java)
+// val lutrisGameMapper = SpringUtil.getBean(LutrisGameMapper::class.java)
+// val lutrisRelGameToCategoriesMapper = SpringUtil.getBean(LutrisRelGameToCategoriesMapper::class.java)
+val objectMapper = SpringUtil.getBean(ObjectMapper::class.java)
 
 fun GsgmPrinter.printlnGsgmGameDesc(gsgmWrapper: GsgmWrapper): String {
-  val objectMapper = ObjectMapper()
+  // val objectMapper = ObjectMapper()
   val infoPath = "${gsgmWrapper.gameFile?.absolutePath}/${GsgmFileName.GSGM_DIR}/${GsgmFileName.INFO}"
   val settingPath = "${gsgmWrapper.gameFile?.absolutePath}/${GsgmFileName.GSGM_DIR}/${GsgmFileName.SETTING}"
   val info = gsgmWrapper.gsgmInfo ?: run {
@@ -94,4 +96,8 @@ fun BigDecimal?.formatHour(): String = if (this == null) {
 
 fun GsgmPrinter.printlnGsgmGameDesc(lutrisWrapper: LutrisWrapper) {
   TODO("未实现")
+}
+
+fun main() {
+  MimeTypeUtils.TEXT_PLAIN_VALUE
 }

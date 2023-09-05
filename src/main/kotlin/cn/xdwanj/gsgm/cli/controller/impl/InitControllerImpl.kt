@@ -138,6 +138,7 @@ class InitControllerImpl(
         //   .filter { it.name.trim().endsWith(".exe", true) || it.name.trim().endsWith(".bat", true) }
 
         // 这里只获取两层目录的文件
+        // todo: 利用魔术字节原理寻找可执行文件
         FileUtil.loopFiles(gameFile, 2) {
           it.name.trim().endsWith(".exe", true)
               || it.name.trim().endsWith(".bat", true)
